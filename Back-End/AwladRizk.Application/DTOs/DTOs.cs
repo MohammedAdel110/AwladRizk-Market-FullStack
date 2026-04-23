@@ -103,9 +103,7 @@ public class AuthTokenDto
     public DateTime ExpiresAt { get; set; }
 }
 
-/// <summary>
-/// Generic paged result wrapper.
-/// </summary>
+
 public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new();
