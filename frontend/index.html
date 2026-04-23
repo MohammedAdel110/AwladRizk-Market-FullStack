@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ماركت اولاد رزق | Awlad Rizk Market</title>
+  <meta name="description" content="ماركت اولاد رزق - سوبر ماركت مصري متميز يقدم أفضل المنتجات الطازجة بأسعار تنافسية مع توصيل مجاني. Awlad Rizk Market - Premium Egyptian supermarket.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════ 1. NAVBAR ══════════ -->
+<nav class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="#" class="navbar__logo" data-i18n="logo">ماركت اولاد رزق</a>
+    <ul class="navbar__links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
+      <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
+      <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
+      <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
+      <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+    </ul>
+    <div class="navbar__actions">
+      <button class="icon-btn" aria-label="Search" id="searchBtn">🔍</button>
+      <a href="cart.html" class="icon-btn cart-btn" aria-label="Cart" id="cartBtn">🛒<span class="cart-badge" id="cartBadge">0</span></a>
+      <button class="dark-toggle" id="darkToggle" aria-label="Night Mode">🌙</button>
+      <button class="lang-toggle" id="langToggle" data-i18n="lang_toggle">EN</button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer__overlay" id="drawerOverlay"></div>
+  <div class="mobile-drawer__panel">
+    <button class="mobile-drawer__close" id="drawerClose">✕</button>
+    <ul class="mobile-drawer__links">
+      <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
+      <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
+      <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
+      <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
+      <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════ 2. HERO ══════════ -->
+<section class="hero" id="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="hero__content container">
+    <div class="hero__badge pulse-soft">
+      <span data-i18n="hero_badge">🚚 توصيل مجاني للطلبات فوق ٢٠٠ جنيه</span>
+    </div>
+    <h1 class="hero__title anim-slide-up" data-i18n="hero_title">كل اللي بيتك محتاجه في مكان واحد</h1>
+    <p class="hero__sub anim-slide-up anim-delay-1" data-i18n="hero_sub">أكبر تشكيلة من المنتجات المصرية بأفضل الأسعار، توصلك لباب بيتك</p>
+    <div class="hero__ctas anim-slide-up anim-delay-2">
+      <a href="#products" class="btn btn--primary" data-i18n="hero_cta1">تسوق الآن</a>
+      <a href="#offers" class="btn btn--outline" data-i18n="hero_cta2">عروض اليوم</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 3. CATEGORIES ══════════ -->
+<section class="section categories" id="categories">
+  <div class="container">
+    <h2 class="section__title reveal-up" data-i18n="cat_title">تسوق حسب القسم</h2>
+    <div class="section__bar reveal-up"></div>
+    <div class="categories__grid stagger-children" id="catGrid">
+      <div class="cat-card reveal-up hover-lift" style="--i:0"><span class="cat-card__icon">🍟</span><span class="cat-card__name" data-i18n="cat_chips">شيبسي ومقرمشات</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:1"><span class="cat-card__icon">🧃</span><span class="cat-card__name" data-i18n="cat_juice">عصائر ومشروبات</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:2"><span class="cat-card__icon">☕</span><span class="cat-card__name" data-i18n="cat_coffee">قهوة وشاي</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:3"><span class="cat-card__icon">🧀</span><span class="cat-card__name" data-i18n="cat_dairy">ألبان وأجبان</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:4"><span class="cat-card__icon">🍪</span><span class="cat-card__name" data-i18n="cat_biscuits">بسكويت وحلويات</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:5"><span class="cat-card__icon">🥫</span><span class="cat-card__name" data-i18n="cat_canned">معلبات</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:6"><span class="cat-card__icon">🧼</span><span class="cat-card__name" data-i18n="cat_clean">منظفات</span></div>
+      <div class="cat-card reveal-up hover-lift" style="--i:7"><span class="cat-card__icon">🍝</span><span class="cat-card__name" data-i18n="cat_pasta">معكرونة وأرز</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 4. OFFERS TICKER ══════════ -->
+<section class="offers-banner" id="offers">
+  <div class="offers-banner__bg-char spin-slow">%</div>
+  <div class="offers-banner__ticker">
+    <div class="ticker__track" id="tickerTrack">
+      <span data-i18n="offer1">🔥 خصم 30% على شيبسي الأحجام الكبيرة</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer2">🧃 عصير جهينة: اشترِ 3 واحصل على 1 مجاناً</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer3">☕ عرض نسكافيه: الكيس الكبير بـ ٨٥ جنيه بدلاً من ١٢٠</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer4">🚚 توصيل مجاني للطلبات فوق 200 جنيه</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer1">🔥 خصم 30% على شيبسي الأحجام الكبيرة</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer2">🧃 عصير جهينة: اشترِ 3 واحصل على 1 مجاناً</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer3">☕ عرض نسكافيه: الكيس الكبير بـ ٨٥ جنيه بدلاً من ١٢٠</span>
+      <span class="ticker__sep">✦</span>
+      <span data-i18n="offer4">🚚 توصيل مجاني للطلبات فوق 200 جنيه</span>
+      <span class="ticker__sep">✦</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 5. FEATURED PRODUCTS ══════════ -->
+<section class="section products" id="products">
+  <div class="container">
+    <h2 class="section__title reveal-up" data-i18n="prod_title">منتجات مميزة</h2>
+    <div class="section__bar reveal-up"></div>
+    <div class="products__grid stagger-children">
+
+      <div class="product-card reveal-up hover-lift" style="--i:0">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/chipsy-cheese.png" alt="Chipsy Chips" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_chips">شيبسي ومقرمشات</span>
+          <h3 class="product-card__name" data-i18n="p1_name">شيبسي كبيرة - بالجبنة</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p1_old">٣٥ جنيه</span><span data-i18n="p1_price">٢٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" style="--i:1">
+        <div class="product-card__img-wrap">
+          <img src="images/juhayna-mango.png" alt="Juhayna Juice" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_juice">عصائر ومشروبات</span>
+          <h3 class="product-card__name" data-i18n="p2_name">عصير جهينة كلاسيك - مانجو</h3>
+          <div class="product-card__price"><span data-i18n="p2_price">١٨ جنيه / لتر</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" style="--i:2">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/nescafe-3in1.png" alt="Nescafe 3in1" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_coffee">قهوة وشاي</span>
+          <h3 class="product-card__name" data-i18n="p3_name">نسكافيه ٣ في ١ - ٣٠ كيس</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p3_old">١٢٠ جنيه</span><span data-i18n="p3_price">٨٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" style="--i:3">
+        <div class="product-card__img-wrap">
+          <img src="images/domty-cheese.png" alt="Domty Cheese" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_dairy">ألبان وأجبان</span>
+          <h3 class="product-card__name" data-i18n="p4_name">جبنة دومتي أبيض مثلثات</h3>
+          <div class="product-card__price"><span data-i18n="p4_price">٤٢ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" style="--i:4">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/arosa-tea.png" alt="El Arosa Tea" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_coffee">قهوة وشاي</span>
+          <h3 class="product-card__name" data-i18n="p5_name">شاي العروسة - ٢٠٠ كيس</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p5_old">١٢٥ جنيه</span><span data-i18n="p5_price">٩٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" style="--i:5">
+        <div class="product-card__img-wrap">
+          <img src="images/molto-croissant.png" alt="Molto Croissant" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_biscuits">بسكويت وحلويات</span>
+          <h3 class="product-card__name" data-i18n="p6_name">مولتو كرواسون - ١٢ قطعة</h3>
+          <div class="product-card__price"><span data-i18n="p6_price">٦٠ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 6. WHY CHOOSE US ══════════ -->
+<section class="section why-us" id="about">
+  <div class="container">
+    <h2 class="section__title reveal-up" data-i18n="why_title">لماذا ماركت اولاد رزق؟</h2>
+    <div class="section__bar reveal-up"></div>
+    <div class="why-us__grid stagger-children">
+      <div class="feature-card reveal-up" style="--i:0">
+        <span class="feature-card__icon">✨</span>
+        <h3 data-i18n="feat1_title">جودة عالية</h3>
+        <p data-i18n="feat1_desc">نختار لك أفضل المنتجات من مصادر موثوقة</p>
+      </div>
+      <div class="feature-card reveal-up" style="--i:1">
+        <span class="feature-card__icon">🚀</span>
+        <h3 data-i18n="feat2_title">توصيل سريع</h3>
+        <p data-i18n="feat2_desc">توصيل خلال ساعة واحدة لجميع المناطق</p>
+      </div>
+      <div class="feature-card reveal-up" style="--i:2">
+        <span class="feature-card__icon">🛒</span>
+        <h3 data-i18n="feat3_title">تشكيلة واسعة</h3>
+        <p data-i18n="feat3_desc">كل اللي بيتك محتاجه من منتجات مصرية أصلية</p>
+      </div>
+      <div class="feature-card reveal-up" style="--i:3">
+        <span class="feature-card__icon">💰</span>
+        <h3 data-i18n="feat4_title">أسعار منافسة</h3>
+        <p data-i18n="feat4_desc">أفضل الأسعار مع عروض يومية حصرية</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 7. TESTIMONIALS ══════════ -->
+<section class="section testimonials" id="testimonials">
+  <div class="container">
+    <h2 class="section__title reveal-up" data-i18n="test_title">آراء عملائنا</h2>
+    <div class="section__bar reveal-up"></div>
+    <div class="testimonials__track" id="testTrack">
+      <div class="test-card reveal-up" style="--i:0">
+        <div class="test-card__avatar" style="background:var(--primary)">أم</div>
+        <div class="test-card__stars">⭐⭐⭐⭐⭐</div>
+        <p class="test-card__quote" data-i18n="t1_quote">"أفضل سوبر ماركت في المنطقة، المنتجات دايماً طازجة والتوصيل سريع جداً"</p>
+        <span class="test-card__name" data-i18n="t1_name">أمينة محمد</span>
+      </div>
+      <div class="test-card reveal-up" style="--i:1">
+        <div class="test-card__avatar" style="background:var(--accent)">خع</div>
+        <div class="test-card__stars">⭐⭐⭐⭐⭐</div>
+        <p class="test-card__quote" data-i18n="t2_quote">"الأسعار ممتازة والجودة عالية، بقالي سنة بتعامل معاهم وما غيّرتش"</p>
+        <span class="test-card__name" data-i18n="t2_name">خالد عبدالله</span>
+      </div>
+      <div class="test-card reveal-up" style="--i:2">
+        <div class="test-card__avatar" style="background:var(--danger)">سأ</div>
+        <div class="test-card__stars">⭐⭐⭐⭐⭐</div>
+        <p class="test-card__quote" data-i18n="t3_quote">"العروض اليومية توفّر كتير، وخدمة العملاء ممتازة ومتعاونين جداً"</p>
+        <span class="test-card__name" data-i18n="t3_name">سارة أحمد</span>
+      </div>
+    </div>
+    <div class="testimonials__dots" id="testDots">
+      <button class="dot active" data-index="0"></button>
+      <button class="dot" data-index="1"></button>
+      <button class="dot" data-index="2"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 8. NEWSLETTER ══════════ -->
+<section class="section newsletter" id="contact">
+  <div class="container newsletter__inner">
+    <div class="newsletter__text reveal-left">
+      <h2 data-i18n="news_title">اشترك في نشرتنا البريدية</h2>
+      <p data-i18n="news_sub">احصل على أحدث العروض والخصومات مباشرة في بريدك الإلكتروني</p>
+      <form class="newsletter__form" id="newsForm">
+        <div class="input-float">
+          <input type="email" id="emailInput" required placeholder=" ">
+          <label for="emailInput" data-i18n="news_email">البريد الإلكتروني</label>
+        </div>
+        <button type="submit" class="btn btn--primary btn--ripple" data-i18n="news_btn">اشترك الآن</button>
+      </form>
+    </div>
+    <div class="newsletter__phone reveal-right">
+      <div class="phone-mockup">
+        <div class="phone-mockup__screen">
+          <div class="phone-mockup__header" style="background:var(--primary)">
+            <span style="color:#fff;font-weight:700" data-i18n="logo">ماركت اولاد رزق</span>
+          </div>
+          <div class="phone-mockup__item"></div>
+          <div class="phone-mockup__item short"></div>
+          <div class="phone-mockup__item"></div>
+          <div class="phone-mockup__item short"></div>
+          <div class="phone-mockup__circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 9. FOOTER ══════════ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__col">
+      <h3 class="footer__logo" data-i18n="logo">ماركت اولاد رزق</h3>
+      <p data-i18n="footer_tagline">ماركت متميز يقدم أكبر تشكيلة من المنتجات المصرية بأفضل الأسعار</p>
+    </div>
+    <div class="footer__col">
+      <h4 data-i18n="footer_links">روابط سريعة</h4>
+      <ul>
+        <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
+        <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
+        <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
+        <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4 data-i18n="footer_contact">تواصل معنا</h4>
+      <ul>
+        <li>📍 <span data-i18n="footer_address">قرية نوي مركز شبين القناطر القليوبية</span></li>
+        <li>📞 <span dir="ltr">+20 2 1234 5678</span></li>
+        <li>✉️ info@awladrizk.eg</li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4 data-i18n="footer_social">تابعنا</h4>
+      <div class="footer__socials">
+        <a href="#" class="social-icon hover-lift" aria-label="Facebook">f</a>
+        <a href="#" class="social-icon hover-lift" aria-label="Instagram">📷</a>
+        <a href="#" class="social-icon hover-lift" aria-label="Twitter">𝕏</a>
+        <a href="#" class="social-icon hover-lift" aria-label="WhatsApp">💬</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom container">
+    <p data-i18n="footer_copy">© ٢٠٢٦ ماركت اولاد رزق. جميع الحقوق محفوظة.</p>
+    <div class="footer__payments">
+      <span class="pay-icon">VISA</span>
+      <span class="pay-icon">MC</span>
+      <span class="pay-icon">فوري</span>
+      <span class="pay-icon">ميزة</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تواصل معنا | ماركت اولاد رزق</title>
+  <meta name="description" content="تواصل مع ماركت اولاد رزق - قرية نوي مركز شبين القناطر القليوبية">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1 data-i18n="contact_page_title">تواصل معنا</h1>
+    <p data-i18n="contact_page_sub">نحب نسمع منك! تواصل معانا في أي وقت</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Contact Form -->
+      <div class="reveal-left">
+        <form class="contact-form" id="contactForm">
+          <input type="text" data-i18n="contact_name" placeholder="الاسم الكامل" required>
+          <input type="email" data-i18n="contact_email" placeholder="البريد الإلكتروني" required>
+          <input type="tel" data-i18n="contact_phone" placeholder="رقم الموبايل">
+          <textarea data-i18n="contact_message" placeholder="الرسالة" required></textarea>
+          <button type="submit" class="btn btn--primary btn--ripple" data-i18n="contact_send">إرسال الرسالة</button>
+        </form>
+      </div>
+      <!-- Contact Info -->
+      <div class="contact-info-cards reveal-right">
+        <div class="info-card">
+          <span class="info-card__icon">📍</span>
+          <div>
+            <h4 data-i18n="footer_address">قرية نوي مركز شبين القناطر القليوبية</h4>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-card__icon">📞</span>
+          <div>
+            <h4>رقم الهاتف</h4>
+            <p dir="ltr">+20 2 1234 5678</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-card__icon">✉️</span>
+          <div>
+            <h4>البريد الإلكتروني</h4>
+            <p>info@awladrizk.eg</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-card__icon">🕐</span>
+          <div>
+            <h4 data-i18n="contact_hours">ساعات العمل</h4>
+            <p data-i18n="contact_hours_val">يومياً من ٨ صباحاً حتى ١٢ مساءً</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="section" style="background:var(--surface-2)">
+  <div class="container">
+    <h2 class="section__title reveal-up" data-i18n="contact_faq_title">أسئلة شائعة</h2>
+    <div class="section__bar reveal-up"></div>
+    <div class="faq-list">
+      <div class="faq-item reveal-up">
+        <div class="faq-q" data-i18n="faq1_q">ما هي مناطق التوصيل؟</div>
+        <div class="faq-a" data-i18n="faq1_a">نوصل لجميع مناطق شبين القناطر والمناطق المجاورة.</div>
+      </div>
+      <div class="faq-item reveal-up">
+        <div class="faq-q" data-i18n="faq2_q">كم مدة التوصيل؟</div>
+        <div class="faq-a" data-i18n="faq2_a">التوصيل خلال ساعة واحدة من تأكيد الطلب.</div>
+      </div>
+      <div class="faq-item reveal-up">
+        <div class="faq-q" data-i18n="faq3_q">هل يوجد حد أدنى للطلب؟</div>
+        <div class="faq-a" data-i18n="faq3_a">الحد الأدنى للطلب ٥٠ جنيه. التوصيل مجاني للطلبات فوق ٢٠٠ جنيه.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+  });
+  // Contact form submit
+  const form = document.getElementById('contactForm');
+  if (form) form.addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = form.querySelector('.btn');
+    btn.textContent = '✓';
+    btn.classList.add('rippling');
+    setTimeout(() => { btn.classList.remove('rippling'); btn.textContent = TRANSLATIONS[currentLang].contact_send; }, 2000);
+    form.reset();
+  });
+});
+</script>
+</body>
+</html>

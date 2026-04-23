@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إتمام الشراء | ماركت اولاد رزق</title>
+  <meta name="description" content="إتمام الشراء - ماركت اولاد رزق">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Checkout-specific styles ── */
+    .checkout-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: start; }
+    .checkout-card { background: #fff; border-radius: var(--radius); padding: 28px; margin-bottom: 24px; }
+    .checkout-card h2 { font-size: 1.3rem; margin-bottom: 20px; font-family: 'Cairo','DM Sans',sans-serif; display: flex; align-items: center; gap: 10px; }
+
+    /* Payment tabs */
+    .pay-tabs { display: flex; gap: 0; border-radius: var(--radius); overflow: hidden; border: 2px solid var(--surface-2); margin-bottom: 24px; }
+    .pay-tab {
+      flex: 1; padding: 14px 10px; text-align: center; font-weight: 600; cursor: pointer;
+      transition: all var(--transition); background: var(--surface); font-size: 0.9rem;
+      border: none; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .pay-tab .pay-tab__icon { font-size: 1.6rem; }
+    .pay-tab.active { background: var(--primary); color: #fff; }
+    .pay-tab:hover:not(.active) { background: var(--surface-2); }
+
+    /* Payment forms */
+    .pay-form { display: none; }
+    .pay-form.active { display: block; }
+    .pay-form .form-group { margin-bottom: 16px; }
+    .pay-form label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+    .pay-form input, .pay-form select, .pay-form textarea {
+      width: 100%; padding: 12px 16px; border: 2px solid var(--surface-2); border-radius: var(--radius-sm);
+      font-size: 1rem; font-family: inherit; background: #fff; transition: border-color var(--transition);
+    }
+    .pay-form input:focus, .pay-form select:focus, .pay-form textarea:focus { outline: none; border-color: var(--primary); }
+    .pay-form textarea { min-height: 80px; resize: vertical; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+
+    .fawry-code-box {
+      background: var(--surface-2); border-radius: var(--radius); padding: 24px; text-align: center;
+      border: 2px dashed var(--accent);
+    }
+    .fawry-code-box .code { font-size: 2rem; font-weight: 700; color: var(--primary); letter-spacing: 4px; margin: 12px 0; font-family: 'DM Sans', monospace; }
+    .fawry-code-box p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .wallet-options { display: flex; gap: 12px; margin-bottom: 16px; }
+    .wallet-opt {
+      flex: 1; padding: 16px; border: 2px solid var(--surface-2); border-radius: var(--radius);
+      text-align: center; cursor: pointer; transition: all var(--transition); font-weight: 600; background: #fff;
+    }
+    .wallet-opt.selected { border-color: var(--primary); background: rgba(26,107,58,0.05); }
+    .wallet-opt:hover { border-color: var(--primary); }
+    .wallet-opt__icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+
+    /* Order summary sidebar */
+    .order-summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--surface-2); font-size: 0.92rem; }
+    .order-summary-item .item-name { flex: 1; }
+    .order-summary-item .item-qty { color: var(--text-muted); margin: 0 12px; }
+
+    .secure-badge { text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-top: 16px; }
+    .pay-methods-icons { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
+    .pay-methods-icons span {
+      padding: 6px 16px; background: var(--surface-2); border-radius: 6px;
+      font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+    }
+
+    /* Success overlay */
+    .success-overlay {
+      display: none; position: fixed; inset: 0; z-index: 3000;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+    }
+    .success-overlay.show { display: flex; }
+    .success-box {
+      background: #fff; border-radius: 20px; padding: 48px 40px; text-align: center;
+      max-width: 440px; width: 90%; animation: slideUp 0.5s ease;
+    }
+    .success-box__icon { font-size: 4rem; margin-bottom: 16px; }
+    .success-box h2 { margin-bottom: 12px; color: var(--primary); }
+    .success-box p { color: var(--text-muted); margin-bottom: 24px; }
+
+    @media (max-width: 1024px) { .checkout-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .form-row { flex-direction: column; } .wallet-options { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1 data-i18n="chk_title">إتمام الشراء</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="checkout-grid">
+      <!-- LEFT: Delivery + Payment -->
+      <div>
+        <!-- Delivery Info -->
+        <div class="checkout-card reveal-up">
+          <h2>📦 <span data-i18n="chk_address">عنوان التوصيل</span></h2>
+          <div class="pay-form active" style="display:block">
+            <div class="form-group">
+              <label data-i18n="chk_address">عنوان التوصيل</label>
+              <input type="text" id="delAddress" data-i18n="chk_address" placeholder="عنوان التوصيل" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="chk_phone">رقم الموبايل</label>
+                <input type="tel" id="delPhone" data-i18n="chk_phone" placeholder="رقم الموبايل" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="chk_notes">ملاحظات (اختياري)</label>
+                <textarea id="delNotes" data-i18n="chk_notes" placeholder="ملاحظات (اختياري)"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="checkout-card reveal-up">
+          <h2>💳 <span data-i18n="chk_payment_method">طريقة الدفع</span></h2>
+
+          <div class="pay-tabs">
+            <button class="pay-tab active" data-method="visa" onclick="switchPayment('visa')">
+              <span class="pay-tab__icon">💳</span>
+              <span data-i18n="chk_visa">بطاقة بنكية</span>
+            </button>
+            <button class="pay-tab" data-method="fawry" onclick="switchPayment('fawry')">
+              <span class="pay-tab__icon">🏪</span>
+              <span data-i18n="chk_fawry">فوري</span>
+            </button>
+            <button class="pay-tab" data-method="wallet" onclick="switchPayment('wallet')">
+              <span class="pay-tab__icon">📱</span>
+              <span data-i18n="chk_wallet">محفظة إلكترونية</span>
+            </button>
+          </div>
+
+          <!-- VISA Form -->
+          <div class="pay-form active" id="form-visa">
+            <div class="form-group">
+              <label data-i18n="chk_card_number">رقم البطاقة</label>
+              <input type="text" maxlength="19" placeholder="0000 0000 0000 0000" id="cardNumber">
+            </div>
+            <div class="form-group">
+              <label data-i18n="chk_card_name">الاسم على البطاقة</label>
+              <input type="text" placeholder="AHMED MOHAMED">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="chk_expiry">تاريخ الانتهاء (MM/YY)</label>
+                <input type="text" maxlength="5" placeholder="MM/YY">
+              </div>
+              <div class="form-group">
+                <label data-i18n="chk_cvv">CVV</label>
+                <input type="text" maxlength="4" placeholder="•••">
+              </div>
+            </div>
+          </div>
+
+          <!-- FAWRY Form -->
+          <div class="pay-form" id="form-fawry">
+            <div class="fawry-code-box">
+              <p>🏪</p>
+              <div class="code" id="fawryCode">2847 6193 0052</div>
+              <p data-i18n="chk_fawry_msg">سيتم إنشاء كود فوري للدفع في أقرب منفذ</p>
+            </div>
+          </div>
+
+          <!-- WALLET Form -->
+          <div class="pay-form" id="form-wallet">
+            <div class="wallet-options">
+              <div class="wallet-opt selected" onclick="selectWallet(this)">
+                <span class="wallet-opt__icon">📱</span>Vodafone Cash
+              </div>
+              <div class="wallet-opt" onclick="selectWallet(this)">
+                <span class="wallet-opt__icon">📲</span>Orange Cash
+              </div>
+              <div class="wallet-opt" onclick="selectWallet(this)">
+                <span class="wallet-opt__icon">💰</span>Etisalat Cash
+              </div>
+            </div>
+            <div class="form-group">
+              <label data-i18n="chk_wallet_phone">رقم الموبايل المربوط بالمحفظة</label>
+              <input type="tel" placeholder="01X XXXX XXXX">
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--ripple" style="width:100%;margin-top:16px" id="payBtn" onclick="processPayment()">
+            <span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">٠ جنيه</span>
+          </button>
+          <div class="secure-badge" data-i18n="chk_secure">🔒 دفع آمن ومشفّر</div>
+          <div class="pay-methods-icons">
+            <span>VISA</span><span>MC</span><span>فوري</span><span>ميزة</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div>
+        <div class="checkout-card reveal-right" style="position:sticky;top:90px">
+          <h2>🧾 <span data-i18n="chk_order_summary">ملخص الطلب</span></h2>
+          <div id="orderItems"></div>
+          <div class="cart-summary__row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--surface-2)">
+            <span data-i18n="cart_subtotal">المجموع الفرعي</span>
+            <span id="chkSubtotal">٠ جنيه</span>
+          </div>
+          <div class="cart-summary__row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--surface-2)">
+            <span data-i18n="cart_delivery">التوصيل</span>
+            <span id="chkDelivery">مجاني</span>
+          </div>
+          <div class="cart-summary__row total" style="display:flex;justify-content:space-between;padding:16px 0 0;font-weight:700;font-size:1.2rem;color:var(--primary)">
+            <span data-i18n="cart_grand_total">الإجمالي الكلي</span>
+            <span id="chkTotal">٠ جنيه</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-box__icon">✅</div>
+    <h2 data-i18n="chk_success_title">تم الطلب بنجاح! 🎉</h2>
+    <p data-i18n="chk_success_msg">شكراً لطلبك. سيتم التوصيل خلال ساعة واحدة.</p>
+    <a href="index.html" class="btn btn--primary" data-i18n="chk_back_home">العودة للرئيسية</a>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+<script src="script.js"></script>
+<script>
+  const PRODUCTS = {
+    p1: 25, p2: 18, p3: 85, p4: 42, p5: 95, p6: 60,
+    p7: 15, p8: 12, p9: 28, p10: 35, p11: 22, p12: 155
+  };
+
+  function fmtPrice(n) {
+    const lang = localStorage.getItem('fm_lang') || 'ar';
+    return lang === 'ar' ? n.toLocaleString('ar-EG') + ' جنيه' : 'EGP ' + n.toLocaleString('en');
+  }
+
+  function renderOrderSummary() {
+    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+    const lang = localStorage.getItem('fm_lang') || 'ar';
+    const t = TRANSLATIONS[lang];
+    const container = document.getElementById('orderItems');
+
+    let subtotal = 0;
+    container.innerHTML = items.map(item => {
+      const price = PRODUCTS[item.id] || 0;
+      const total = price * item.qty;
+      subtotal += total;
+      const name = t[item.id + '_name'] || item.id;
+      return `<div class="order-summary-item">
+        <span class="item-name">${name}</span>
+        <span class="item-qty">×${item.qty}</span>
+        <span>${fmtPrice(total)}</span>
+      </div>`;
+    }).join('');
+
+    const delivery = subtotal >= 200 ? 0 : 15;
+    document.getElementById('chkSubtotal').textContent = fmtPrice(subtotal);
+    document.getElementById('chkDelivery').textContent = delivery === 0 ? (t.cart_free || 'مجاني') : fmtPrice(delivery);
+    document.getElementById('chkTotal').textContent = fmtPrice(subtotal + delivery);
+    document.getElementById('payTotal').textContent = fmtPrice(subtotal + delivery);
+  }
+
+  function switchPayment(method) {
+    document.querySelectorAll('.pay-tab').forEach(t => t.classList.toggle('active', t.dataset.method === method));
+    document.querySelectorAll('.pay-form').forEach(f => f.classList.remove('active'));
+    document.getElementById('form-' + method).classList.add('active');
+  }
+
+  function selectWallet(el) {
+    document.querySelectorAll('.wallet-opt').forEach(w => w.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // Card number formatting
+  document.addEventListener('DOMContentLoaded', () => {
+    renderOrderSummary();
+    const cardInput = document.getElementById('cardNumber');
+    if (cardInput) {
+      cardInput.addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '').substring(0, 16);
+        e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+      });
+    }
+  });
+
+  function processPayment() {
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;animation:spinSlow 1s linear infinite">⏳</span>';
+    setTimeout(() => {
+      // Clear cart
+      localStorage.removeItem('fm_cart_items');
+      localStorage.setItem('fm_cart', '0');
+      document.getElementById('successOverlay').classList.add('show');
+    }, 2000);
+  }
+</script>
+</body>
+</html>

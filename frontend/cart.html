@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سلة التسوق | ماركت اولاد رزق</title>
+  <meta name="description" content="سلة التسوق - ماركت اولاد رزق">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <h1 data-i18n="cart_title">سلة التسوق</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <!-- Empty Cart State -->
+    <div class="cart-empty" id="cartEmpty">
+      <div class="cart-empty__icon">🛒</div>
+      <h2 data-i18n="cart_empty">سلتك فارغة!</h2>
+      <p data-i18n="cart_empty_sub">ابدأ التسوق وأضف منتجات لسلتك</p>
+      <a href="categories.html" class="btn btn--primary" data-i18n="cart_continue">تابع التسوق</a>
+    </div>
+
+    <!-- Cart with Items -->
+    <div id="cartContent" style="display:none">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th data-i18n="cart_product">المنتج</th>
+            <th data-i18n="cart_price">السعر</th>
+            <th data-i18n="cart_qty">الكمية</th>
+            <th data-i18n="cart_total">الإجمالي</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+
+      <div class="cart-summary">
+        <div class="cart-summary__row">
+          <span data-i18n="cart_subtotal">المجموع الفرعي</span>
+          <span id="subtotal">٠ جنيه</span>
+        </div>
+        <div class="cart-summary__row">
+          <span data-i18n="cart_delivery">التوصيل</span>
+          <span id="deliveryFee">١٥ جنيه</span>
+        </div>
+        <div class="cart-summary__row total">
+          <span data-i18n="cart_grand_total">الإجمالي الكلي</span>
+          <span id="grandTotal">٠ جنيه</span>
+        </div>
+        <a href="checkout.html" class="btn btn--primary" style="width:100%;margin-top:16px" data-i18n="cart_checkout" id="checkoutBtn">إتمام الشراء</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+<script src="script.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   CART ENGINE — localStorage-backed
+   ══════════════════════════════════════════ */
+
+/* Product catalog (prices in EGP) */
+const PRODUCTS = {
+  p1:  { price: 25,  img: 'images/chipsy-cheese.png' },
+  p2:  { price: 18,  img: 'images/juhayna-mango.png' },
+  p3:  { price: 85,  img: 'images/nescafe-3in1.png' },
+  p4:  { price: 42,  img: 'images/domty-cheese.png' },
+  p5:  { price: 95,  img: 'images/arosa-tea.png' },
+  p6:  { price: 60,  img: 'images/molto-croissant.png' },
+  p7:  { price: 15,  img: 'images/chipsy-ketchup.png' },
+  p8:  { price: 12,  img: 'images/beyti-guava.png' },
+  p9:  { price: 28,  img: 'images/california-foul.png' },
+  p10: { price: 35,  img: 'images/gena-tuna.png' },
+  p11: { price: 22,  img: 'images/regina-pasta.png' },
+  p12: { price: 155, img: 'images/persil-detergent.png' },
+};
+
+const FREE_DELIVERY_MIN = 200;
+const DELIVERY_FEE = 15;
+
+function getCart() {
+  return JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+}
+function saveCart(items) {
+  localStorage.setItem('fm_cart_items', JSON.stringify(items));
+  localStorage.setItem('fm_cart', items.reduce((s,i) => s + i.qty, 0).toString());
+}
+
+/* Format number to Arabic/English */
+function fmtPrice(n) {
+  const lang = localStorage.getItem('fm_lang') || 'ar';
+  if (lang === 'ar') return n.toLocaleString('ar-EG') + ' جنيه';
+  return 'EGP ' + n.toLocaleString('en');
+}
+
+/* Render full cart */
+function renderCart() {
+  const items = getCart();
+  const body = document.getElementById('cartBody');
+  const emptyEl = document.getElementById('cartEmpty');
+  const contentEl = document.getElementById('cartContent');
+  const lang = localStorage.getItem('fm_lang') || 'ar';
+  const t = TRANSLATIONS[lang];
+
+  if (!items.length) {
+    emptyEl.style.display = '';
+    contentEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  contentEl.style.display = 'block';
+
+  body.innerHTML = items.map((item, idx) => {
+    const prod = PRODUCTS[item.id] || { price: 0, img: '' };
+    const nameKey = item.id + '_name';
+    const name = t[nameKey] || item.id;
+    const rowTotal = prod.price * item.qty;
+    return `<tr data-idx="${idx}" data-id="${item.id}">
+      <td style="display:flex;align-items:center;gap:12px">
+        <img class="cart-item-img" src="${prod.img}" alt="">
+        <span class="cart-item-name">${name}</span>
+      </td>
+      <td>${fmtPrice(prod.price)}</td>
+      <td>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+        </div>
+      </td>
+      <td class="row-total">${fmtPrice(rowTotal)}</td>
+      <td><button class="remove-btn" onclick="removeItem(${idx})">${t.cart_remove || 'حذف'}</button></td>
+    </tr>`;
+  }).join('');
+
+  updateTotals();
+}
+
+function updateTotals() {
+  const items = getCart();
+  let subtotal = 0;
+  items.forEach(item => {
+    const prod = PRODUCTS[item.id];
+    if (prod) subtotal += prod.price * item.qty;
+  });
+  const delivery = subtotal >= FREE_DELIVERY_MIN ? 0 : DELIVERY_FEE;
+  const lang = localStorage.getItem('fm_lang') || 'ar';
+  const t = TRANSLATIONS[lang];
+
+  document.getElementById('subtotal').textContent = fmtPrice(subtotal);
+  document.getElementById('deliveryFee').textContent = delivery === 0 ? (t.cart_free || 'مجاني') : fmtPrice(delivery);
+  document.getElementById('grandTotal').textContent = fmtPrice(subtotal + delivery);
+
+  // Save totals for checkout page
+  localStorage.setItem('fm_cart_subtotal', subtotal);
+  localStorage.setItem('fm_cart_delivery', delivery);
+}
+
+function changeQty(idx, delta) {
+  const items = getCart();
+  if (!items[idx]) return;
+  items[idx].qty += delta;
+  if (items[idx].qty < 1) items[idx].qty = 1;
+  saveCart(items);
+  renderCart();
+  updateCartBadge();
+}
+
+function removeItem(idx) {
+  const items = getCart();
+  items.splice(idx, 1);
+  saveCart(items);
+  renderCart();
+  updateCartBadge();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Seed demo items if cart is empty and badge > 0 (first visit from adding items)
+  const items = getCart();
+  if (!items.length) {
+    const count = parseInt(localStorage.getItem('fm_cart') || '0');
+    if (count > 0) {
+      // Add some demo items based on count
+      const demoIds = ['p1','p3','p5','p6','p2','p4'];
+      const seed = [];
+      for (let i = 0; i < Math.min(count, demoIds.length); i++) {
+        seed.push({ id: demoIds[i], qty: 1 });
+      }
+      saveCart(seed);
+    }
+  }
+  renderCart();
+});
+</script>
+</body>
+</html>

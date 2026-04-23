@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الأقسام | ماركت اولاد رزق</title>
+  <meta name="description" content="تصفح جميع أقسام ماركت اولاد رزق - شيبسي، عصائر، قهوة، ألبان، بسكويت، معلبات، منظفات، معكرونة وأرز">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<!-- Page Hero -->
+<section class="page-hero">
+  <div class="container">
+    <h1 data-i18n="cat_page_title">جميع الأقسام</h1>
+    <p data-i18n="cat_page_sub">تصفح منتجاتنا حسب القسم</p>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section class="section">
+  <div class="container">
+    <div class="search-box">
+      <input type="text" id="searchInput" data-i18n="search_placeholder" placeholder="ابحث عن منتج...">
+    </div>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-cat="all" data-i18n="filter_all">الكل</button>
+      <button class="filter-btn" data-cat="chips" data-i18n="cat_chips">شيبسي ومقرمشات</button>
+      <button class="filter-btn" data-cat="juice" data-i18n="cat_juice">عصائر ومشروبات</button>
+      <button class="filter-btn" data-cat="coffee" data-i18n="cat_coffee">قهوة وشاي</button>
+      <button class="filter-btn" data-cat="dairy" data-i18n="cat_dairy">ألبان وأجبان</button>
+      <button class="filter-btn" data-cat="biscuits" data-i18n="cat_biscuits">بسكويت وحلويات</button>
+      <button class="filter-btn" data-cat="canned" data-i18n="cat_canned">معلبات</button>
+      <button class="filter-btn" data-cat="clean" data-i18n="cat_clean">منظفات</button>
+      <button class="filter-btn" data-cat="pasta" data-i18n="cat_pasta">معكرونة وأرز</button>
+    </div>
+    <div class="products__grid stagger-children" id="productsGrid">
+
+      <div class="product-card reveal-up hover-lift" data-category="chips" style="--i:0">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/chipsy-cheese.png" alt="Chipsy" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_chips">شيبسي ومقرمشات</span>
+          <h3 class="product-card__name" data-i18n="p1_name">شيبسي كبيرة - بالجبنة</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p1_old">٣٥ جنيه</span><span data-i18n="p1_price">٢٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="chips" style="--i:1">
+        <div class="product-card__img-wrap">
+          <img src="images/chipsy-ketchup.png" alt="Chipsy Ketchup" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_chips">شيبسي ومقرمشات</span>
+          <h3 class="product-card__name" data-i18n="p7_name">شيبسي بالكاتشب</h3>
+          <div class="product-card__price"><span data-i18n="p7_price">١٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="juice" style="--i:2">
+        <div class="product-card__img-wrap">
+          <img src="images/juhayna-mango.png" alt="Juhayna" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_juice">عصائر ومشروبات</span>
+          <h3 class="product-card__name" data-i18n="p2_name">عصير جهينة كلاسيك - مانجو</h3>
+          <div class="product-card__price"><span data-i18n="p2_price">١٨ جنيه / لتر</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="juice" style="--i:3">
+        <div class="product-card__img-wrap">
+          <img src="images/beyti-guava.png" alt="Beyti" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_juice">عصائر ومشروبات</span>
+          <h3 class="product-card__name" data-i18n="p8_name">عصير بيتي - جوافة</h3>
+          <div class="product-card__price"><span data-i18n="p8_price">١٢ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="coffee" style="--i:4">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/nescafe-3in1.png" alt="Nescafe" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_coffee">قهوة وشاي</span>
+          <h3 class="product-card__name" data-i18n="p3_name">نسكافيه ٣ في ١ - ٣٠ كيس</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p3_old">١٢٠ جنيه</span><span data-i18n="p3_price">٨٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="coffee" style="--i:5">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/arosa-tea.png" alt="El Arosa Tea" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_coffee">قهوة وشاي</span>
+          <h3 class="product-card__name" data-i18n="p5_name">شاي العروسة - ٢٠٠ كيس</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p5_old">١٢٥ جنيه</span><span data-i18n="p5_price">٩٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="dairy" style="--i:6">
+        <div class="product-card__img-wrap">
+          <img src="images/domty-cheese.png" alt="Domty" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_dairy">ألبان وأجبان</span>
+          <h3 class="product-card__name" data-i18n="p4_name">جبنة دومتي أبيض مثلثات</h3>
+          <div class="product-card__price"><span data-i18n="p4_price">٤٢ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="biscuits" style="--i:7">
+        <div class="product-card__img-wrap">
+          <img src="images/molto-croissant.png" alt="Molto" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_biscuits">بسكويت وحلويات</span>
+          <h3 class="product-card__name" data-i18n="p6_name">مولتو كرواسون - ١٢ قطعة</h3>
+          <div class="product-card__price"><span data-i18n="p6_price">٦٠ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="canned" style="--i:8">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/california-foul.png" alt="California Garden" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_canned">معلبات</span>
+          <h3 class="product-card__name" data-i18n="p9_name">فول كاليفورنيا جاردن</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p9_old">٣٨ جنيه</span><span data-i18n="p9_price">٢٨ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="canned" style="--i:9">
+        <div class="product-card__img-wrap">
+          <img src="images/gena-tuna.png" alt="Gena Tuna" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_canned">معلبات</span>
+          <h3 class="product-card__name" data-i18n="p10_name">تونة جنة</h3>
+          <div class="product-card__price"><span data-i18n="p10_price">٣٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="pasta" style="--i:10">
+        <div class="product-card__img-wrap">
+          <img src="images/regina-pasta.png" alt="Regina Pasta" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_pasta">معكرونة وأرز</span>
+          <h3 class="product-card__name" data-i18n="p11_name">مكرونة ريجينا - ٥٠٠ جرام</h3>
+          <div class="product-card__price"><span data-i18n="p11_price">٢٢ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal-up hover-lift" data-category="clean" style="--i:11">
+        <div class="product-card__img-wrap">
+          <div class="product-card__ribbon" data-i18n="sale">خصم</div>
+          <img src="images/persil-detergent.png" alt="Persil" loading="lazy">
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__tag" data-i18n="cat_clean">منظفات</span>
+          <h3 class="product-card__name" data-i18n="p12_name">برسيل غسيل - ٤ كيلو</h3>
+          <div class="product-card__price"><span class="product-card__old" data-i18n="p12_old">١٩٠ جنيه</span><span data-i18n="p12_price">١٥٥ جنيه</span></div>
+          <button class="btn btn--cart add-cart-btn" data-i18n="add_cart">أضف للسلة</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Category filter
+    const btns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.product-card[data-category]');
+    btns.forEach(b => b.addEventListener('click', () => {
+      btns.forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const cat = b.dataset.cat;
+      cards.forEach(c => { c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none'; });
+    }));
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      cards.forEach(c => {
+        const name = c.querySelector('.product-card__name').textContent.toLowerCase();
+        c.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+  });
+</script>
+</body>
+</html>
