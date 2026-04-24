@@ -24,6 +24,67 @@ function money(v) {
   return Number.isFinite(n) ? n.toFixed(2) : "0.00";
 }
 
+function normalizeOrder(o) {
+  if (!o) return null;
+  const orderId = Number(o.orderId ?? o.OrderId ?? o.id ?? o.Id ?? 0);
+  const orderNumber = String(o.orderNumber ?? o.OrderNumber ?? "—");
+  const customerName = String(o.customerName ?? o.CustomerName ?? "—");
+  const totalAmount = Number(o.totalAmount ?? o.TotalAmount ?? o.grandTotal ?? o.GrandTotal ?? 0);
+  const status = String(o.status ?? o.Status ?? "Pending");
+  return { orderId, orderNumber, customerName, totalAmount, status };
+}
+
+function ordersEmptyRowHtml() {
+  return `<tr id="ordersEmptyRow"><td colspan="6" style="padding:18px;color:var(--text-muted);font-weight:900;text-align:center">No orders</td></tr>`;
+}
+
+function orderRowHtml(order, opts) {
+  const o = normalizeOrder(order);
+  if (!o || !o.orderId) return "";
+  const flashClass = opts && opts.flash ? " js-order-flash" : "";
+  return `<tr data-order-id="${escapeHtml(o.orderId)}" class="${flashClass}">
+    <td>#${escapeHtml(o.orderId)}</td>
+    <td>${escapeHtml(o.orderNumber)}</td>
+    <td>${escapeHtml(o.customerName)}</td>
+    <td>EGP ${escapeHtml(money(o.totalAmount))}</td>
+    <td><span class="admin-badge">${escapeHtml(o.status)}</span></td>
+    <td>
+      <div class="admin-actions">
+        <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(o.orderId)}" data-status="Confirmed">Confirm</button>
+        <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(o.orderId)}" data-status="Preparing">Preparing</button>
+        <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(o.orderId)}" data-status="OutForDelivery">Out</button>
+        <button class="admin-btn" type="button" data-action="orderStatus" data-id="${escapeHtml(o.orderId)}" data-status="Delivered">Done</button>
+        <button class="admin-btn admin-btn--danger" type="button" data-action="orderStatus" data-id="${escapeHtml(o.orderId)}" data-status="Cancelled">Cancel</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function upsertIncomingOrderRow(payload) {
+  const list = document.getElementById("ordersList");
+  if (!list) return false;
+  const o = normalizeOrder(payload);
+  if (!o || !o.orderId) return false;
+
+  // Hide empty state if present
+  const empty = document.getElementById("ordersEmptyRow");
+  if (empty) empty.remove();
+
+  // If row already exists, skip (or update)
+  const existing = list.querySelector(`tr[data-order-id="${CSS.escape(String(o.orderId))}"]`);
+  if (existing) return false;
+
+  list.insertAdjacentHTML("afterbegin", orderRowHtml(o, { flash: true }));
+  const row = list.querySelector("tr.js-order-flash");
+  if (row) {
+    row.classList.remove("js-order-flash");
+    row.classList.add("order-flash");
+    // remove highlight class after animation ends
+    window.setTimeout(() => row.classList.remove("order-flash"), 1600);
+  }
+  return true;
+}
+
 function showToast(message, kind) {
   const el = $("adminToast");
   if (!el) return;
@@ -98,10 +159,11 @@ async function initOrderRealtimeNotifications() {
     .build();
 
   connection.on("ReceiveNewOrder", (payload) => {
-    playOrderAlertSound();
-    showRealtimeOrderToast(payload || {});
-    // Optional: keep admin lists fresh
-    loadOrders().catch(() => {});
+    // Add the new order row immediately (no refresh).
+    const added = upsertIncomingOrderRow(payload || {});
+    if (added) {
+      playOrderAlertSound();
+    }
   });
 
   try {
@@ -659,29 +721,11 @@ async function loadOrders() {
   const totalCount = data && typeof data.totalCount === "number" ? data.totalCount : items.length;
 
   state.items = items;
-  list.innerHTML = items.map(o => {
-    const id = o.orderId ?? o.id ?? 0;
-    const orderNumber = o.orderNumber ?? "—";
-    const customer = o.customerName ?? "—";
-    const total = o.totalAmount ?? o.grandTotal ?? 0;
-    const status = o.status ?? "Pending";
-    return `<tr>
-      <td>#${escapeHtml(id)}</td>
-      <td>${escapeHtml(orderNumber)}</td>
-      <td>${escapeHtml(customer)}</td>
-      <td>EGP ${escapeHtml(money(total))}</td>
-      <td><span class="admin-badge">${escapeHtml(status)}</span></td>
-      <td>
-        <div class="admin-actions">
-          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Confirmed">Confirm</button>
-          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Preparing">Preparing</button>
-          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="OutForDelivery">Out</button>
-          <button class="admin-btn" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Delivered">Done</button>
-          <button class="admin-btn admin-btn--danger" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Cancelled">Cancel</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join("");
+  if (!items.length) {
+    list.innerHTML = ordersEmptyRowHtml();
+  } else {
+    list.innerHTML = items.map(o => orderRowHtml(o)).join("");
+  }
 
   const meta = $("metaOrders");
   if (meta) meta.textContent = String(totalCount);

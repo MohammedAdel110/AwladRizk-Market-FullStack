@@ -928,6 +928,16 @@ html.dark .admin-btn { background: rgba(42,42,42,0.85); border-color: rgba(255,2
 @keyframes rtToastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes rtToastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
+/* Orders table highlight when new order arrives */
+tr.order-flash > td {
+  animation: orderFlash 1400ms ease-out both;
+}
+@keyframes orderFlash {
+  0% { background: rgba(26, 107, 58, 0.18); }
+  35% { background: rgba(26, 107, 58, 0.12); }
+  100% { background: transparent; }
+}
+
 /* Admin modal (edit drawer) */
 .admin-modal { position: fixed; inset: 0; z-index: 9000; display: none; }
 .admin-modal.open { display: block; }
