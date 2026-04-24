@@ -4,6 +4,7 @@ using AwladRizk.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AwladRizk.Persistence.Migrations
 {
     [DbContext(typeof(AwladRizkDbContext))]
-    partial class AwladRizkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424120108_AddOrderCustomerName")]
+    partial class AddOrderCustomerName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
