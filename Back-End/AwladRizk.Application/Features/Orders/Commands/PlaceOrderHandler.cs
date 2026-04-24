@@ -29,8 +29,7 @@ public sealed class PlaceOrderHandler(
             cart.Items.Select(i => i.ProductId),
             cancellationToken);
 
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
-        try
+        var dto = await unitOfWork.ExecuteInTransactionAsync(async ct =>
         {
             var order = new Order
             {
@@ -46,7 +45,7 @@ public sealed class PlaceOrderHandler(
                 request.City.Trim(),
                 request.Governorate.Trim()));
 
-            order.OrderNumber = await GenerateUniqueOrderNumberAsync(cancellationToken);
+            order.OrderNumber = await GenerateUniqueOrderNumberAsync(ct);
 
             var subtotal = 0m;
             foreach (var item in cart.Items)
@@ -56,7 +55,7 @@ public sealed class PlaceOrderHandler(
                     throw new InvalidOperationException($"Product {item.ProductId} not found.");
                 }
 
-                var stockDeducted = await productRepository.TryDeductStockAsync(product.Id, item.Quantity, cancellationToken);
+                var stockDeducted = await productRepository.TryDeductStockAsync(product.Id, item.Quantity, ct);
                 if (!stockDeducted)
                 {
                     throw new InvalidOperationException($"Insufficient stock for product {product.NameEn}.");
@@ -77,7 +76,7 @@ public sealed class PlaceOrderHandler(
             order.DeliveryFee = subtotal >= 200m ? 0m : 15m;
             order.GrandTotal = order.SubTotal + order.DeliveryFee;
 
-            await orderRepository.AddAsync(order, cancellationToken);
+            await orderRepository.AddAsync(order, ct);
 
             var payment = new Payment
             {
@@ -87,21 +86,16 @@ public sealed class PlaceOrderHandler(
                 Status = PaymentStatus.Pending
             };
 
-            await paymentRepository.AddAsync(payment, cancellationToken);
-            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            await paymentRepository.AddAsync(payment, ct);
 
-            await cartService.ClearAsync(request.SessionId, cancellationToken);
+            var mapped = mapper.Map<OrderDetailDto>(order);
+            mapped.Items = mapper.Map<List<OrderItemDto>>(order.Items);
+            mapped.Payment = mapper.Map<PaymentDto>(payment);
+            return mapped;
+        }, cancellationToken);
 
-            var dto = mapper.Map<OrderDetailDto>(order);
-            dto.Items = mapper.Map<List<OrderItemDto>>(order.Items);
-            dto.Payment = mapper.Map<PaymentDto>(payment);
-            return dto;
-        }
-        catch
-        {
-            await unitOfWork.RollbackTransactionAsync(cancellationToken);
-            throw;
-        }
+        await cartService.ClearAsync(request.SessionId, cancellationToken);
+        return dto;
     }
 
     private async Task<string> GenerateUniqueOrderNumberAsync(CancellationToken ct)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using AwladRizk.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace AwladRizk.Persistence;
 
@@ -62,6 +63,36 @@ public class UnitOfWork : IUnitOfWork
             await _transaction.DisposeAsync();
             _transaction = null;
         }
+    }
+
+    public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken ct = default)
+    {
+        await ExecuteInTransactionAsync<object?>(async token =>
+        {
+            await operation(token);
+            return null;
+        }, ct);
+    }
+
+    public async Task<T> ExecuteInTransactionAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken ct = default)
+    {
+        // Required when SqlServerRetryingExecutionStrategy is enabled (EnableRetryOnFailure).
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await BeginTransactionAsync(ct);
+            try
+            {
+                var result = await operation(ct);
+                await CommitTransactionAsync(ct);
+                return result;
+            }
+            catch
+            {
+                await RollbackTransactionAsync(ct);
+                throw;
+            }
+        });
     }
 
     public void Dispose()
