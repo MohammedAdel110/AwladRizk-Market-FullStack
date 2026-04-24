@@ -36,6 +36,7 @@ public sealed class PlaceOrderHandler(
             {
                 SessionId = request.SessionId,
                 Status = OrderStatus.Pending,
+                CustomerName = request.CustomerName.Trim(),
                 Phone = request.Phone.Trim(),
                 Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim()
             };

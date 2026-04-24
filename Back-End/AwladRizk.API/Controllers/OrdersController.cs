@@ -37,8 +37,10 @@ public class OrdersController(
             }
         }
 
+        var customerName = string.IsNullOrWhiteSpace(request.CustomerName) ? "Customer" : request.CustomerName.Trim();
         var result = await sender.Send(new PlaceOrderCommand(
             sessionId,
+            customerName,
             request.Street,
             request.Area ?? string.Empty,
             request.City,
@@ -52,7 +54,6 @@ public class OrdersController(
 
         // Broadcast ONLY after the order is successfully saved (sender.Send returns after commit).
         // Only connected Admin clients will receive this (Hub is authorized + Admin group).
-        var customerName = string.IsNullOrWhiteSpace(request.CustomerName) ? "Customer" : request.CustomerName.Trim();
         await orderHub.Clients.Group(OrderHub.AdminsGroup).ReceiveNewOrder(new NewOrderNotification(
             result.OrderId,
             customerName,

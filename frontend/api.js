@@ -180,6 +180,17 @@
       const fd = new FormData();
       fd.append("file", file);
       return request("/api/admin/uploads/image", { method: "POST", body: fd, auth: true });
+    },
+    adminGetOrders: function adminGetOrders(query) {
+      const qs = query ? ("?" + query) : "";
+      return request("/api/admin/orders" + qs, { method: "GET", auth: true });
+    },
+    adminUpdateOrderStatus: function adminUpdateOrderStatus(id, status) {
+      return request("/api/admin/orders/" + id + "/status", {
+        method: "PUT",
+        body: JSON.stringify({ status }),
+        auth: true
+      });
     }
   };
 

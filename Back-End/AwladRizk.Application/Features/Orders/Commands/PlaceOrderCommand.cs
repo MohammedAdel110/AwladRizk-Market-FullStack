@@ -10,6 +10,7 @@ namespace AwladRizk.Application.Features.Orders.Commands;
 /// </summary>
 public record PlaceOrderCommand(
     string SessionId,
+    string CustomerName,
     string Street,
     string Area,
     string City,

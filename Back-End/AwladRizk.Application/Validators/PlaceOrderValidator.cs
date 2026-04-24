@@ -10,6 +10,10 @@ public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand>
         RuleFor(x => x.SessionId)
             .NotEmpty().WithMessage("Session ID is required.");
 
+        RuleFor(x => x.CustomerName)
+            .NotEmpty().WithMessage("Customer name is required.")
+            .MaximumLength(150);
+
         RuleFor(x => x.Street)
             .NotEmpty().WithMessage("Delivery address is required.")
             .MaximumLength(200);

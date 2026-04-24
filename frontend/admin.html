@@ -22,6 +22,10 @@
           <span class="admin-nav__label">Products</span>
           <span class="admin-nav__meta" id="metaProducts">—</span>
         </button>
+        <button class="admin-nav__item" type="button" data-view="orders">
+          <span class="admin-nav__label">Orders</span>
+          <span class="admin-nav__meta" id="metaOrders">—</span>
+        </button>
         <button class="admin-nav__item" type="button" data-view="offers">
           <span class="admin-nav__label">Offers</span>
           <span class="admin-nav__meta" id="metaOffers">—</span>
@@ -78,6 +82,10 @@
                   <div class="admin-field admin-field--wide">
                     <label>Image URL</label>
                     <input name="imageUrl" placeholder="https://..." required>
+                    <div class="admin-file" style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                      <input id="createImageFile" type="file" accept="image/*">
+                      <button id="createUploadBtn" class="admin-btn admin-btn--ghost" type="button">Upload photo</button>
+                    </div>
                   </div>
                   <div class="admin-field">
                     <label>Stock quantity</label>
@@ -147,6 +155,48 @@
                 </table>
               </div>
               <div class="admin-pager" id="productsPager"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-view" id="view-orders" data-view="orders">
+          <div class="admin-grid" style="grid-template-columns: 1fr;">
+            <div class="admin-card admin-card--table">
+              <div class="admin-card__head admin-card__head--row">
+                <div>
+                  <h2 class="admin-card__title">Orders to process</h2>
+                  <p class="admin-card__hint">Track and update order status without leaving the website.</p>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <select id="ordersStatusFilter" class="admin-btn" style="height:44px">
+                    <option value="Pending,Confirmed,Preparing,OutForDelivery">Needs processing</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Preparing">Preparing</option>
+                    <option value="OutForDelivery">Out for delivery</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="All">All</option>
+                  </select>
+                  <button id="ordersRefreshBtn" class="admin-btn admin-btn--ghost" type="button">Refresh</button>
+                </div>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th style="width:90px">ID</th>
+                      <th style="width:180px">Order #</th>
+                      <th>Customer</th>
+                      <th style="width:140px">Total</th>
+                      <th style="width:160px">Status</th>
+                      <th style="width:200px">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersList"></tbody>
+                </table>
+              </div>
+              <div class="admin-pager" id="ordersPager"></div>
             </div>
           </div>
         </div>

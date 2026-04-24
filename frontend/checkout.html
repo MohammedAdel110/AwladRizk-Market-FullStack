@@ -185,7 +185,7 @@
             </button>
             <button class="pay-tab" data-method="cod" onclick="switchPayment('cod')">
               <span class="pay-tab__icon">🟢</span>
-              <span>واتساب (COD)</span>
+              <span>الدفع عند الاستلام</span>
             </button>
           </div>
 
@@ -239,12 +239,12 @@
             </div>
           </div>
 
-          <!-- COD (WhatsApp) Form -->
+          <!-- COD Form -->
           <div class="pay-form" id="form-cod">
             <div class="terms-box" style="margin-top:0">
-              <h3 style="margin-bottom:8px">🟢 الدفع عند الاستلام عبر واتساب</h3>
+              <h3 style="margin-bottom:8px">🟢 الدفع عند الاستلام</h3>
               <p style="margin:0">
-                عند الضغط على زر (إرسال الطلب)، سيتم إنشاء رسالة واتساب تحتوي على بياناتك وطلبك وإرسالها مباشرة إلى السوبر ماركت.
+                سيتم تأكيد الطلب من خلال إدارة الماركت داخل الموقع، وسيتم التواصل معك للتجهيز والتوصيل.
               </p>
             </div>
           </div>
@@ -365,7 +365,7 @@
     const payBtn = document.getElementById('payBtn');
     if (payBtn) {
       if (method === 'cod') {
-        payBtn.innerHTML = `إرسال الطلب عبر واتساب — <span id="payTotal">${document.getElementById('chkTotal')?.textContent || '٠ جنيه'}</span>`;
+        payBtn.innerHTML = `تأكيد الطلب — <span id="payTotal">${document.getElementById('chkTotal')?.textContent || '٠ جنيه'}</span>`;
       } else {
         payBtn.innerHTML = `<span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">${document.getElementById('chkTotal')?.textContent || '٠ جنيه'}</span>`;
       }
@@ -479,48 +479,7 @@
     }
   }
 
-  function buildWhatsappOrderMessage({ fullName, phone, address, notes, itemsLines, grandTotal }) {
-    const lines = [];
-    lines.push("السلام عليكم 👋");
-    lines.push("طلب جديد - ماركت اولاد رزق 🛒");
-    lines.push("");
-    lines.push("👤 بيانات العميل:");
-    lines.push(`- الاسم: ${fullName}`);
-    lines.push(`- الهاتف: ${phone}`);
-    lines.push(`- العنوان: ${address}`);
-    if (notes) lines.push(`- ملاحظات: ${notes}`);
-    lines.push("");
-    lines.push("🧾 تفاصيل الطلب:");
-    itemsLines.forEach(l => lines.push(`- ${l}`));
-    lines.push("");
-    lines.push(`💰 الإجمالي: ${grandTotal}`);
-    lines.push("💵 طريقة الدفع: الدفع عند الاستلام");
-    lines.push("");
-    lines.push("✅ من فضلك أكد الطلب.");
-    return lines.join("\n");
-  }
-
-  function getCartItemsLines() {
-    const raw = JSON.parse(localStorage.getItem("fm_cart_items") || "[]");
-    const items = raw
-      .map(i => ({ id: toProductId(i.id), qty: Number(i.qty || 0) }))
-      .filter(i => i.id > 0 && i.qty > 0);
-
-    const lang = localStorage.getItem("fm_lang") || "ar";
-    return items.map(i => {
-      const p = PRODUCTS[i.id] || { nameAr: "#" + i.id, nameEn: "#" + i.id };
-      const name = lang === "ar" ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr);
-      return `${name} × ${i.qty}`;
-    });
-  }
-
-  function computeGrandTotal() {
-    const subtotal = Number(localStorage.getItem("fm_cart_subtotal") || 0);
-    const delivery = Number(localStorage.getItem("fm_cart_delivery") || 0);
-    return subtotal + delivery;
-  }
-
-  async function checkoutViaWhatsappCod() {
+  async function checkoutCod() {
     const fullName = (document.getElementById("delFullName")?.value || "").trim();
     const phone = (document.getElementById("delPhone")?.value || "").trim();
     const governorate = (document.getElementById("delGovernorate")?.value || "").trim();
@@ -533,15 +492,6 @@
       alert("من فضلك أكمل الاسم ورقم الهاتف والعنوان.");
       return;
     }
-
-    const itemsLines = getCartItemsLines();
-    if (!itemsLines.length) {
-      alert("السلة فارغة.");
-      return;
-    }
-
-    const address = [governorate, city, area, street].filter(Boolean).join(" - ");
-    const grandTotalText = fmtPrice(computeGrandTotal());
 
     // Create order in backend first (deduct stock + save order), then open WhatsApp.
     const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]')
@@ -562,27 +512,17 @@
           items
         });
       }
+      localStorage.removeItem('fm_cart_items');
+      localStorage.setItem('fm_cart', '0');
+      document.getElementById('successOverlay').classList.add('show');
     } catch (_) {
-      // If API fails, still allow WhatsApp message.
+      alert("تعذر إنشاء الطلب حالياً. حاول مرة أخرى.");
     }
-
-    const message = buildWhatsappOrderMessage({
-      fullName,
-      phone,
-      address,
-      notes,
-      itemsLines,
-      grandTotal: grandTotalText
-    });
-    const encoded = encodeURIComponent(message);
-    const STORE_WHATSAPP = "201096758244";
-
-    window.location.href = `https://wa.me/${STORE_WHATSAPP}?text=${encoded}`;
   }
 
   function handleCheckout() {
     const selectedMethod = document.querySelector('.pay-tab.active')?.dataset.method || 'visa';
-    if (selectedMethod === "cod") return checkoutViaWhatsappCod();
+    if (selectedMethod === "cod") return checkoutCod();
     return processPayment();
   }
 </script>

@@ -101,7 +101,7 @@ async function initOrderRealtimeNotifications() {
     playOrderAlertSound();
     showRealtimeOrderToast(payload || {});
     // Optional: keep admin lists fresh
-    // refreshAllData().catch(() => {});
+    loadOrders().catch(() => {});
   });
 
   try {
@@ -121,6 +121,7 @@ const EditState = {
 
 const ListState = {
   products: { items: [], page: 1, pageSize: 8 },
+  orders: { items: [], page: 1, pageSize: 10 },
   offers: { items: [], page: 1, pageSize: 6 },
   ticker: { items: [], page: 1, pageSize: 8 }
 };
@@ -388,7 +389,7 @@ async function openEditProduct(id) {
       const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
       if (!file) return showToast("Choose an image file first.", "error");
       const res = await window.ApiClient.adminUploadImage(file);
-      f.imageUrl.value = res.url;
+      f.imageUrl.value = res.relativeUrl || res.url;
       showToast("Image uploaded.", "ok");
       f.dispatchEvent(new Event("input", { bubbles: true }));
     };
@@ -640,6 +641,53 @@ async function loadOffers() {
   renderPager("offers", items.length, "offersPager", loadOffers);
 }
 
+async function loadOrders() {
+  const list = document.getElementById("ordersList");
+  if (!list) return;
+
+  const filterEl = document.getElementById("ordersStatusFilter");
+  const filterVal = filterEl ? String(filterEl.value || "") : "Pending,Confirmed,Preparing,OutForDelivery";
+  const statuses = filterVal === "All" ? "" : encodeURIComponent(filterVal);
+
+  const state = ListState.orders;
+  const page = state.page;
+  const pageSize = state.pageSize;
+  const query = `page=${page}&pageSize=${pageSize}${statuses ? `&statuses=${statuses}` : ""}`;
+
+  const data = await window.ApiClient.adminGetOrders(query);
+  const items = data && Array.isArray(data.items) ? data.items : [];
+  const totalCount = data && typeof data.totalCount === "number" ? data.totalCount : items.length;
+
+  state.items = items;
+  list.innerHTML = items.map(o => {
+    const id = o.orderId ?? o.id ?? 0;
+    const orderNumber = o.orderNumber ?? "—";
+    const customer = o.customerName ?? "—";
+    const total = o.totalAmount ?? o.grandTotal ?? 0;
+    const status = o.status ?? "Pending";
+    return `<tr>
+      <td>#${escapeHtml(id)}</td>
+      <td>${escapeHtml(orderNumber)}</td>
+      <td>${escapeHtml(customer)}</td>
+      <td>EGP ${escapeHtml(money(total))}</td>
+      <td><span class="admin-badge">${escapeHtml(status)}</span></td>
+      <td>
+        <div class="admin-actions">
+          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Confirmed">Confirm</button>
+          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Preparing">Preparing</button>
+          <button class="admin-btn admin-btn--ghost" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="OutForDelivery">Out</button>
+          <button class="admin-btn" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Delivered">Done</button>
+          <button class="admin-btn admin-btn--danger" type="button" data-action="orderStatus" data-id="${escapeHtml(id)}" data-status="Cancelled">Cancel</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  const meta = $("metaOrders");
+  if (meta) meta.textContent = String(totalCount);
+  renderPager("orders", totalCount, "ordersPager", loadOrders);
+}
+
 async function loadTicker() {
   const items = await window.ApiClient.adminGetTickerMessages();
   ListState.ticker.items = items;
@@ -704,7 +752,7 @@ async function deleteTicker(id) {
 }
 
 async function refreshAllData() {
-  await Promise.all([loadProducts(), loadOffers(), loadTicker()]);
+  await Promise.all([loadProducts(), loadOrders(), loadOffers(), loadTicker()]);
 }
 
 async function editProduct(id) {
@@ -784,6 +832,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   setActiveView("products");
   initOrderRealtimeNotifications();
 
+  const createUploadBtn = document.getElementById("createUploadBtn");
+  if (createUploadBtn) {
+    createUploadBtn.addEventListener("click", async () => {
+      const fileInput = document.getElementById("createImageFile");
+      const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      const productForm = document.getElementById("productForm");
+      if (!productForm) return;
+      if (!file) return showToast("Choose an image file first.", "error");
+      try {
+        createUploadBtn.disabled = true;
+        const res = await window.ApiClient.adminUploadImage(file);
+        productForm.imageUrl.value = res.relativeUrl || res.url;
+        showToast("Image uploaded.", "ok");
+        productForm.dispatchEvent(new Event("input", { bubbles: true }));
+      } catch (err) {
+        showToast(err && err.message ? err.message : "Upload failed.", "error");
+      } finally {
+        createUploadBtn.disabled = false;
+      }
+    });
+  }
+
   const nav = $("adminNav");
   if (nav) {
     nav.addEventListener("click", (e) => {
@@ -808,6 +878,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (action === "deleteOffer") return await deleteOffer(id);
       if (action === "editTicker") return await openEditTicker(id);
       if (action === "deleteTicker") return await deleteTicker(id);
+      if (action === "orderStatus") {
+        const status = btn.dataset.status || "Pending";
+        await window.ApiClient.adminUpdateOrderStatus(id, status);
+        showToast("Order updated.", "ok");
+        return await loadOrders();
+      }
     } catch (err) {
       showToast(err && err.message ? err.message : "Action failed.", "error");
     }
@@ -867,6 +943,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         refreshBtn.disabled = false;
         refreshBtn.textContent = oldText;
       }
+    });
+  }
+
+  const ordersRefreshBtn = $("ordersRefreshBtn");
+  if (ordersRefreshBtn) {
+    ordersRefreshBtn.addEventListener("click", async () => {
+      ordersRefreshBtn.disabled = true;
+      try {
+        await loadOrders();
+        showToast("Orders refreshed.", "ok");
+      } catch (err) {
+        showToast(err && err.message ? err.message : "Refresh failed.", "error");
+      } finally {
+        ordersRefreshBtn.disabled = false;
+      }
+    });
+  }
+  const ordersStatusFilter = $("ordersStatusFilter");
+  if (ordersStatusFilter) {
+    ordersStatusFilter.addEventListener("change", async () => {
+      ListState.orders.page = 1;
+      try { await loadOrders(); } catch { /* ignore */ }
     });
   }
 

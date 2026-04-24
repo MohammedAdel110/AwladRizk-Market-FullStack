@@ -9,6 +9,7 @@ public class Order : BaseEntity
     public string OrderNumber { get; set; } = string.Empty;
     public string SessionId { get; set; } = string.Empty;
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public string CustomerName { get; set; } = string.Empty;
 
     // Totals
     public decimal SubTotal { get; set; }
