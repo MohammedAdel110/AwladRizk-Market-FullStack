@@ -12,6 +12,10 @@ public class ProcessPaymentValidator : AbstractValidator<ProcessPaymentCommand>
 
         RuleFor(x => x.Method)
             .IsInEnum().WithMessage("Invalid payment method.");
+        
+        RuleFor(x => x.Method)
+            .Must(m => m != Domain.Enums.PaymentMethod.Cod)
+            .WithMessage("COD does not require payment processing.");
 
         RuleFor(x => x.WalletPhone)
             .NotEmpty()

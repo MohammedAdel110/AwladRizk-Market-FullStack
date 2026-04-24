@@ -22,6 +22,13 @@ public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand>
             .NotEmpty().WithMessage("Governorate is required.")
             .MaximumLength(100);
 
+        RuleFor(x => x.Governorate)
+            .Must(g => g is "Qalyubia" or "القليوبية")
+            .WithMessage("Delivery is currently available only in Qalyubia Governorate.");
+
+        RuleFor(x => x.Area)
+            .MaximumLength(200);
+
         RuleFor(x => x.Phone)
             .NotEmpty().WithMessage("Phone number is required.")
             .Matches(@"^01[0-9]{9}$").WithMessage("Invalid Egyptian phone number format.");

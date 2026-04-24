@@ -105,19 +105,40 @@
           <h2>📦 <span data-i18n="chk_address">عنوان التوصيل</span></h2>
           <div class="pay-form active" style="display:block">
             <div class="form-group">
-              <label data-i18n="chk_address">عنوان التوصيل</label>
-              <input type="text" id="delAddress" data-i18n="chk_address" placeholder="عنوان التوصيل" required>
+              <label>الاسم بالكامل / Full Name</label>
+              <input type="text" id="delFullName" placeholder="اكتب اسمك بالكامل" required>
             </div>
             <div class="form-row">
+              <div class="form-group">
+                <label>المحافظة / Governorate</label>
+                <select id="delGovernorate" required></select>
+              </div>
+              <div class="form-group">
+                <label>المدينة / City</label>
+                <select id="delCity" required></select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>المنطقة (اختياري) / Area (optional)</label>
+                <input type="text" id="delArea" placeholder="مثال: نوي / Nawi">
+              </div>
               <div class="form-group">
                 <label data-i18n="chk_phone">رقم الموبايل</label>
                 <input type="tel" id="delPhone" data-i18n="chk_phone" placeholder="رقم الموبايل" required>
               </div>
-              <div class="form-group">
-                <label data-i18n="chk_notes">ملاحظات (اختياري)</label>
-                <textarea id="delNotes" data-i18n="chk_notes" placeholder="ملاحظات (اختياري)"></textarea>
-              </div>
             </div>
+            <div class="form-group">
+              <label>العنوان بالتفصيل / Detailed address</label>
+              <textarea id="delStreet" placeholder="اكتب العنوان بالتفصيل (شارع/عمارة/شقة)"></textarea>
+            </div>
+            <div class="form-group">
+              <label data-i18n="chk_notes">ملاحظات (اختياري)</label>
+              <textarea id="delNotes" data-i18n="chk_notes" placeholder="ملاحظات (اختياري)"></textarea>
+            </div>
+            <p id="deliveryWarning" style="margin-top:8px;color:#b30000;display:none">
+              التوصيل متاح حالياً داخل محافظة القليوبية فقط.
+            </p>
           </div>
         </div>
 
@@ -137,6 +158,10 @@
             <button class="pay-tab" data-method="wallet" onclick="switchPayment('wallet')">
               <span class="pay-tab__icon">📱</span>
               <span data-i18n="chk_wallet">محفظة إلكترونية</span>
+            </button>
+            <button class="pay-tab" data-method="cod" onclick="switchPayment('cod')">
+              <span class="pay-tab__icon">🟢</span>
+              <span>واتساب (COD)</span>
             </button>
           </div>
 
@@ -190,7 +215,17 @@
             </div>
           </div>
 
-          <button class="btn btn--primary btn--ripple" style="width:100%;margin-top:16px" id="payBtn" onclick="processPayment()">
+          <!-- COD (WhatsApp) Form -->
+          <div class="pay-form" id="form-cod">
+            <div class="terms-box" style="margin-top:0">
+              <h3 style="margin-bottom:8px">🟢 الدفع عند الاستلام عبر واتساب</h3>
+              <p style="margin:0">
+                عند الضغط على زر (إرسال الطلب)، سيتم إنشاء رسالة واتساب تحتوي على بياناتك وطلبك وإرسالها مباشرة إلى السوبر ماركت.
+              </p>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--ripple" style="width:100%;margin-top:16px" id="payBtn" onclick="handleCheckout()">
             <span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">٠ جنيه</span>
           </button>
           <div class="secure-badge" data-i18n="chk_secure">🔒 دفع آمن ومشفّر</div>
@@ -229,7 +264,7 @@
     <div class="success-box__icon">✅</div>
     <h2 data-i18n="chk_success_title">تم الطلب بنجاح! 🎉</h2>
     <p data-i18n="chk_success_msg">شكراً لطلبك. سيتم التوصيل خلال ساعة واحدة.</p>
-    <a href="index.html" class="btn btn--primary" data-i18n="chk_back_home">العودة للرئيسية</a>
+    <a href="/index.html" class="btn btn--primary" data-i18n="chk_back_home">العودة للرئيسية</a>
   </div>
 </div>
 
@@ -237,11 +272,35 @@
 <script src="components.js"></script>
 <script src="api.js"></script>
 <script src="script.js"></script>
+<script src="egypt-locations.js"></script>
 <script>
-  const PRODUCTS = {
-    p1: 25, p2: 18, p3: 85, p4: 42, p5: 95, p6: 60,
-    p7: 15, p8: 12, p9: 28, p10: 35, p11: 22, p12: 155
-  };
+  const PRODUCTS = {};
+
+  function toProductId(rawId) {
+    if (typeof rawId === 'number') return rawId;
+    const s = String(rawId || '').trim();
+    if (/^\d+$/.test(s)) return Number(s);
+    const m = /^p(\d+)$/i.exec(s);
+    return m ? Number(m[1]) : 0;
+  }
+
+  async function loadProductCatalog() {
+    if (!window.ApiClient) return;
+    try {
+      const payload = await window.ApiClient.request('/api/products?page=1&pageSize=200', { method: 'GET' });
+      const items = payload && Array.isArray(payload.items) ? payload.items : [];
+      items.forEach(p => {
+        PRODUCTS[p.id] = {
+          id: p.id,
+          nameAr: p.nameAr,
+          nameEn: p.nameEn,
+          price: Number(p.price || 0)
+        };
+      });
+    } catch (_) {
+      // keep fallback behavior
+    }
+  }
 
   function fmtPrice(n) {
     const lang = localStorage.getItem('fm_lang') || 'ar';
@@ -249,17 +308,17 @@
   }
 
   function renderOrderSummary() {
-    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]').map(i => ({ ...i, id: toProductId(i.id) })).filter(i => i.id > 0);
     const lang = localStorage.getItem('fm_lang') || 'ar';
-    const t = TRANSLATIONS[lang];
     const container = document.getElementById('orderItems');
 
     let subtotal = 0;
     container.innerHTML = items.map(item => {
-      const price = PRODUCTS[item.id] || 0;
+      const p = PRODUCTS[item.id] || { price: 0, nameAr: '#' + item.id, nameEn: '#' + item.id };
+      const price = Number(p.price || 0);
       const total = price * item.qty;
       subtotal += total;
-      const name = t[item.id + '_name'] || item.id;
+      const name = lang === 'ar' ? (p.nameAr || p.nameEn || ('#' + item.id)) : (p.nameEn || p.nameAr || ('#' + item.id));
       return `<div class="order-summary-item">
         <span class="item-name">${name}</span>
         <span class="item-qty">×${item.qty}</span>
@@ -278,6 +337,15 @@
     document.querySelectorAll('.pay-tab').forEach(t => t.classList.toggle('active', t.dataset.method === method));
     document.querySelectorAll('.pay-form').forEach(f => f.classList.remove('active'));
     document.getElementById('form-' + method).classList.add('active');
+
+    const payBtn = document.getElementById('payBtn');
+    if (payBtn) {
+      if (method === 'cod') {
+        payBtn.innerHTML = `إرسال الطلب عبر واتساب — <span id="payTotal">${document.getElementById('chkTotal')?.textContent || '٠ جنيه'}</span>`;
+      } else {
+        payBtn.innerHTML = `<span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">${document.getElementById('chkTotal')?.textContent || '٠ جنيه'}</span>`;
+      }
+    }
   }
 
   function selectWallet(el) {
@@ -287,7 +355,10 @@
 
   // Card number formatting
   document.addEventListener('DOMContentLoaded', () => {
-    renderOrderSummary();
+    loadProductCatalog().finally(() => {
+      renderOrderSummary();
+      initDeliverySelectors();
+    });
     const cardInput = document.getElementById('cardNumber');
     if (cardInput) {
       cardInput.addEventListener('input', e => {
@@ -297,15 +368,63 @@
     }
   });
 
+  function initDeliverySelectors() {
+    const gov = document.getElementById('delGovernorate');
+    const city = document.getElementById('delCity');
+    const warning = document.getElementById('deliveryWarning');
+    const payBtn = document.getElementById('payBtn');
+
+    if (!gov || !city) return;
+
+    // Fallback: if locations script fails on mobile, still enable Qalyubia shipping.
+    const locations = window.EgyptLocations || {
+      governorates: [{ key: 'Qalyubia', ar: 'القليوبية', en: 'Qalyubia', cities: ['Shibin El Qanater', 'Banha', 'Qalyub'] }],
+      byKey: (k) => ({ key: 'Qalyubia', cities: ['Shibin El Qanater', 'Banha', 'Qalyub'] })
+    };
+
+    const lang = localStorage.getItem('fm_lang') || 'ar';
+    gov.innerHTML = locations.governorates.map(g => {
+      const label = lang === 'ar' ? g.ar : g.en;
+      const disabled = g.key !== 'Qalyubia';
+      return `<option value="${g.key}" ${disabled ? 'disabled' : ''}>${label}${disabled ? ' (Coming soon)' : ''}</option>`;
+    }).join('');
+
+    gov.value = 'Qalyubia';
+
+    function refreshCities() {
+      const selected = locations.byKey(gov.value);
+      const cities = selected ? selected.cities : [];
+      city.innerHTML = ['<option value="">Select city</option>'].concat(
+        cities.map(c => `<option value="${c}">${c}</option>`)
+      ).join('');
+      city.value = 'Shibin El Qanater';
+    }
+
+    function refreshRules() {
+      const ok = gov.value === 'Qalyubia';
+      warning.style.display = ok ? 'none' : '';
+      if (payBtn) payBtn.disabled = !ok;
+    }
+
+    gov.addEventListener('change', () => { refreshCities(); refreshRules(); });
+    refreshCities();
+    refreshRules();
+  }
+
   async function processPayment() {
     const btn = document.getElementById('payBtn');
     btn.disabled = true;
     btn.innerHTML = '<span style="display:inline-block;animation:spinSlow 1s linear infinite">⏳</span>';
     const selectedMethod = document.querySelector('.pay-tab.active')?.dataset.method || 'visa';
-    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]')
+      .map(i => ({ productId: toProductId(i.id), quantity: Number(i.qty || 0) }))
+      .filter(i => i.productId > 0 && i.quantity > 0);
 
     const orderPayload = {
-      address: document.getElementById('delAddress')?.value || '',
+      governorate: document.getElementById('delGovernorate')?.value || '',
+      city: document.getElementById('delCity')?.value || '',
+      area: document.getElementById('delArea')?.value || '',
+      street: document.getElementById('delStreet')?.value || '',
       phone: document.getElementById('delPhone')?.value || '',
       notes: document.getElementById('delNotes')?.value || '',
       paymentMethod: selectedMethod,
@@ -333,6 +452,112 @@
       btn.innerHTML = '<span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">٠ جنيه</span>';
       renderOrderSummary();
     }
+  }
+
+  function buildWhatsappOrderMessage({ fullName, phone, address, notes, itemsLines, grandTotal }) {
+    const lines = [];
+    lines.push("السلام عليكم 👋");
+    lines.push("طلب جديد - ماركت اولاد رزق 🛒");
+    lines.push("");
+    lines.push("👤 بيانات العميل:");
+    lines.push(`- الاسم: ${fullName}`);
+    lines.push(`- الهاتف: ${phone}`);
+    lines.push(`- العنوان: ${address}`);
+    if (notes) lines.push(`- ملاحظات: ${notes}`);
+    lines.push("");
+    lines.push("🧾 تفاصيل الطلب:");
+    itemsLines.forEach(l => lines.push(`- ${l}`));
+    lines.push("");
+    lines.push(`💰 الإجمالي: ${grandTotal}`);
+    lines.push("💵 طريقة الدفع: الدفع عند الاستلام");
+    lines.push("");
+    lines.push("✅ من فضلك أكد الطلب.");
+    return lines.join("\n");
+  }
+
+  function getCartItemsLines() {
+    const raw = JSON.parse(localStorage.getItem("fm_cart_items") || "[]");
+    const items = raw
+      .map(i => ({ id: toProductId(i.id), qty: Number(i.qty || 0) }))
+      .filter(i => i.id > 0 && i.qty > 0);
+
+    const lang = localStorage.getItem("fm_lang") || "ar";
+    return items.map(i => {
+      const p = PRODUCTS[i.id] || { nameAr: "#" + i.id, nameEn: "#" + i.id };
+      const name = lang === "ar" ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr);
+      return `${name} × ${i.qty}`;
+    });
+  }
+
+  function computeGrandTotal() {
+    const subtotal = Number(localStorage.getItem("fm_cart_subtotal") || 0);
+    const delivery = Number(localStorage.getItem("fm_cart_delivery") || 0);
+    return subtotal + delivery;
+  }
+
+  async function checkoutViaWhatsappCod() {
+    const fullName = (document.getElementById("delFullName")?.value || "").trim();
+    const phone = (document.getElementById("delPhone")?.value || "").trim();
+    const governorate = (document.getElementById("delGovernorate")?.value || "").trim();
+    const city = (document.getElementById("delCity")?.value || "").trim();
+    const area = (document.getElementById("delArea")?.value || "").trim();
+    const street = (document.getElementById("delStreet")?.value || "").trim();
+    const notes = (document.getElementById("delNotes")?.value || "").trim();
+
+    if (!fullName || !phone || !governorate || !city || !street) {
+      alert("من فضلك أكمل الاسم ورقم الهاتف والعنوان.");
+      return;
+    }
+
+    const itemsLines = getCartItemsLines();
+    if (!itemsLines.length) {
+      alert("السلة فارغة.");
+      return;
+    }
+
+    const address = [governorate, city, area, street].filter(Boolean).join(" - ");
+    const grandTotalText = fmtPrice(computeGrandTotal());
+
+    // Create order in backend first (deduct stock + save order), then open WhatsApp.
+    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]')
+      .map(i => ({ productId: toProductId(i.id), quantity: Number(i.qty || 0) }))
+      .filter(i => i.productId > 0 && i.quantity > 0);
+
+    try {
+      if (window.ApiClient) {
+        await window.ApiClient.placeOrder({
+          governorate,
+          city,
+          area,
+          street,
+          phone,
+          notes,
+          paymentMethod: "Cod",
+          items
+        });
+      }
+    } catch (_) {
+      // If API fails, still allow WhatsApp message.
+    }
+
+    const message = buildWhatsappOrderMessage({
+      fullName,
+      phone,
+      address,
+      notes,
+      itemsLines,
+      grandTotal: grandTotalText
+    });
+    const encoded = encodeURIComponent(message);
+    const STORE_WHATSAPP = "201096758244";
+
+    window.location.href = `https://wa.me/${STORE_WHATSAPP}?text=${encoded}`;
+  }
+
+  function handleCheckout() {
+    const selectedMethod = document.querySelector('.pay-tab.active')?.dataset.method || 'visa';
+    if (selectedMethod === "cod") return checkoutViaWhatsappCod();
+    return processPayment();
   }
 </script>
 </body>

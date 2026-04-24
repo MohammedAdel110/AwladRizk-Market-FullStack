@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="section">
+    <div class="container" style="max-width:520px">
+      <h1>Admin Login</h1>
+      <form id="loginForm" class="contact-form">
+        <input type="email" name="email" placeholder="Admin email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button class="btn btn--primary" type="submit">Login</button>
+      </form>
+      <p id="loginError" style="color:#b30000;margin-top:10px"></p>
+    </div>
+  </section>
+
+  <script src="api.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errorEl = document.getElementById("loginError");
+      errorEl.textContent = "";
+      try {
+        const result = await window.ApiClient.adminLogin(form.email.value, form.password.value);
+        window.ApiClient.setAdminToken(result.token);
+        window.location.href = "admin.html";
+      } catch (err) {
+        const tried = err && err.baseTried ? ` (tried: ${err.baseTried.join(", ")})` : "";
+        const status = err && typeof err.status === "number" ? `HTTP ${err.status}: ` : "";
+        errorEl.textContent = status + ((err && err.message) || "Login failed.") + tried;
+      }
+    });
+  </script>
+</body>
+</html>

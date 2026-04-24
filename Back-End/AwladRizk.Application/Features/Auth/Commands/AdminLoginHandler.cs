@@ -18,6 +18,12 @@ public sealed class AdminLoginHandler(
         }
 
         var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        if (!isPasswordValid && user.PasswordHash.StartsWith("$2a$"))
+        {
+            // Compatibility fallback for older BCrypt hash prefix variants.
+            var normalizedHash = "$2b$" + user.PasswordHash[4..];
+            isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, normalizedHash);
+        }
         if (!isPasswordValid)
         {
             return null;

@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using AwladRizk.Application.Features.Orders.Commands;
 using AwladRizk.Application.Features.Orders.Queries;
 using AwladRizk.Domain.Enums;
+using AwladRizk.Domain.Interfaces;
 
 namespace AwladRizk.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class OrdersController(ISender sender) : ControllerBase
+public class OrdersController(ISender sender, ICartService cartService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken ct = default)
@@ -18,15 +19,25 @@ public class OrdersController(ISender sender) : ControllerBase
             return BadRequest(new { message = "Invalid payment method." });
         }
 
-        var (street, area, city, governorate) = SplitAddress(request.Address);
         var sessionId = string.IsNullOrWhiteSpace(request.SessionId) ? HttpContext.Session.Id : request.SessionId;
+
+        // Allow web clients to submit cart line items directly at checkout,
+        // then hydrate Redis cart before running the existing order pipeline.
+        if (request.Items is { Count: > 0 })
+        {
+            await cartService.ClearAsync(sessionId, ct);
+            foreach (var item in request.Items.Where(i => i.ProductId > 0 && i.Quantity > 0))
+            {
+                await cartService.AddItemAsync(sessionId, item.ProductId, item.Quantity, ct);
+            }
+        }
 
         var result = await sender.Send(new PlaceOrderCommand(
             sessionId,
-            street,
-            area,
-            city,
-            governorate,
+            request.Street,
+            request.Area ?? string.Empty,
+            request.City,
+            request.Governorate,
             request.Phone,
             request.Notes,
             paymentMethod,
@@ -45,34 +56,26 @@ public class OrdersController(ISender sender) : ControllerBase
         return order is null ? NotFound() : Ok(order);
     }
 
-    private static (string street, string area, string city, string governorate) SplitAddress(string? rawAddress)
-    {
-        if (string.IsNullOrWhiteSpace(rawAddress))
-        {
-            return ("N/A", "N/A", "N/A", "N/A");
-        }
-
-        var parts = rawAddress
-            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .ToList();
-
-        while (parts.Count < 4)
-        {
-            parts.Add("N/A");
-        }
-
-        return (parts[0], parts[1], parts[2], parts[3]);
-    }
 }
 
 public sealed class PlaceOrderRequest
 {
     public string? SessionId { get; set; }
-    public string Address { get; set; } = string.Empty;
+    public string Governorate { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public string? Area { get; set; }
+    public string Street { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string? Notes { get; set; }
     public string PaymentMethod { get; set; } = "Visa";
     public string? CardToken { get; set; }
     public string? WalletPhone { get; set; }
     public string? WalletProvider { get; set; }
+    public List<PlaceOrderItemRequest>? Items { get; set; }
+}
+
+public sealed class PlaceOrderItemRequest
+{
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
 }

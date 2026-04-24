@@ -26,7 +26,7 @@
       <div class="cart-empty__icon">🛒</div>
       <h2 data-i18n="cart_empty">سلتك فارغة!</h2>
       <p data-i18n="cart_empty_sub">ابدأ التسوق وأضف منتجات لسلتك</p>
-      <a href="categories.html" class="btn btn--primary" data-i18n="cart_continue">تابع التسوق</a>
+      <a href="/categories.html" class="btn btn--primary" data-i18n="cart_continue">تابع التسوق</a>
     </div>
 
     <!-- Cart with Items -->
@@ -57,7 +57,7 @@
           <span data-i18n="cart_grand_total">الإجمالي الكلي</span>
           <span id="grandTotal">٠ جنيه</span>
         </div>
-        <a href="checkout.html" class="btn btn--primary" style="width:100%;margin-top:16px" data-i18n="cart_checkout" id="checkoutBtn">إتمام الشراء</a>
+        <a href="/checkout.html" class="btn btn--primary" style="width:100%;margin-top:16px" data-i18n="cart_checkout" id="checkoutBtn">إتمام الشراء</a>
       </div>
     </div>
   </div>
@@ -72,27 +72,52 @@
    CART ENGINE — localStorage-backed
    ══════════════════════════════════════════ */
 
-/* Product catalog (prices in EGP) */
-const PRODUCTS = {
-  p1:  { price: 25,  img: 'images/chipsy-cheese.png' },
-  p2:  { price: 18,  img: 'images/juhayna-mango.png' },
-  p3:  { price: 85,  img: 'images/nescafe-3in1.png' },
-  p4:  { price: 42,  img: 'images/domty-cheese.png' },
-  p5:  { price: 95,  img: 'images/arosa-tea.png' },
-  p6:  { price: 60,  img: 'images/molto-croissant.png' },
-  p7:  { price: 15,  img: 'images/chipsy-ketchup.png' },
-  p8:  { price: 12,  img: 'images/beyti-guava.png' },
-  p9:  { price: 28,  img: 'images/california-foul.png' },
-  p10: { price: 35,  img: 'images/gena-tuna.png' },
-  p11: { price: 22,  img: 'images/regina-pasta.png' },
-  p12: { price: 155, img: 'images/persil-detergent.png' },
-};
+/* Product catalog from API */
+const PRODUCTS = {};
+
+function toProductId(rawId) {
+  if (typeof rawId === 'number') return rawId;
+  const s = String(rawId || '').trim();
+  if (/^\d+$/.test(s)) return Number(s);
+  const m = /^p(\d+)$/i.exec(s);
+  return m ? Number(m[1]) : 0;
+}
+
+function normalizeImageUrl(url) {
+  if (!url) return 'images/chipsy-cheese.png';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/images/')) return url.slice(1);
+  if (url.startsWith('/uploads/') && window.ApiClient) return window.ApiClient.getBaseUrl() + url;
+  if (url.startsWith('/') && window.ApiClient) return window.ApiClient.getBaseUrl() + url;
+  return url;
+}
+
+async function loadProductCatalog() {
+  if (!window.ApiClient) return;
+  try {
+    const payload = await window.ApiClient.request('/api/products?page=1&pageSize=200', { method: 'GET' });
+    const items = payload && Array.isArray(payload.items) ? payload.items : [];
+    items.forEach(p => {
+      PRODUCTS[p.id] = {
+        id: p.id,
+        price: Number(p.price || 0),
+        nameAr: p.nameAr,
+        nameEn: p.nameEn,
+        img: normalizeImageUrl(p.imageUrl)
+      };
+    });
+  } catch (_) {
+    // leave empty and render zero values on API failure
+  }
+}
 
 const FREE_DELIVERY_MIN = 200;
 const DELIVERY_FEE = 15;
 
 function getCart() {
-  return JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+  return JSON.parse(localStorage.getItem('fm_cart_items') || '[]')
+    .map(i => ({ ...i, id: toProductId(i.id), qty: Number(i.qty || 0) }))
+    .filter(i => i.id > 0 && i.qty > 0);
 }
 function saveCart(items) {
   localStorage.setItem('fm_cart_items', JSON.stringify(items));
@@ -124,9 +149,8 @@ function renderCart() {
   contentEl.style.display = 'block';
 
   body.innerHTML = items.map((item, idx) => {
-    const prod = PRODUCTS[item.id] || { price: 0, img: '' };
-    const nameKey = item.id + '_name';
-    const name = t[nameKey] || item.id;
+    const prod = PRODUCTS[item.id] || { price: 0, img: '', nameAr: '#' + item.id, nameEn: '#' + item.id };
+    const name = lang === 'ar' ? (prod.nameAr || prod.nameEn || ('#' + item.id)) : (prod.nameEn || prod.nameAr || ('#' + item.id));
     const rowTotal = prod.price * item.qty;
     return `<tr data-idx="${idx}" data-id="${item.id}">
       <td style="display:flex;align-items:center;gap:12px">
@@ -188,21 +212,7 @@ function removeItem(idx) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Seed demo items if cart is empty and badge > 0 (first visit from adding items)
-  const items = getCart();
-  if (!items.length) {
-    const count = parseInt(localStorage.getItem('fm_cart') || '0');
-    if (count > 0) {
-      // Add some demo items based on count
-      const demoIds = ['p1','p3','p5','p6','p2','p4'];
-      const seed = [];
-      for (let i = 0; i < Math.min(count, demoIds.length); i++) {
-        seed.push({ id: demoIds[i], qty: 1 });
-      }
-      saveCart(seed);
-    }
-  }
-  renderCart();
+  loadProductCatalog().finally(() => renderCart());
 });
 </script>
 </body>

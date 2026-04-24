@@ -197,26 +197,5 @@
 <script src="components.js"></script>
 <script src="api.js"></script>
 <script src="script.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Category filter
-    const btns = document.querySelectorAll('.filter-btn');
-    const cards = document.querySelectorAll('.product-card[data-category]');
-    btns.forEach(b => b.addEventListener('click', () => {
-      btns.forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      const cat = b.dataset.cat;
-      cards.forEach(c => { c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none'; });
-    }));
-    // Search filter
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const q = e.target.value.toLowerCase();
-      cards.forEach(c => {
-        const name = c.querySelector('.product-card__name').textContent.toLowerCase();
-        c.style.display = name.includes(q) ? '' : 'none';
-      });
-    });
-  });
-</script>
 </body>
 </html>

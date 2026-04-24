@@ -7,17 +7,17 @@ function getNavbarHTML() {
   return `
   <nav class="navbar" id="navbar">
     <div class="container navbar__inner">
-      <a href="index.html" class="navbar__logo" data-i18n="logo">ماركت اولاد رزق</a>
+      <a href="/index.html" class="navbar__logo" data-i18n="logo">ماركت اولاد رزق</a>
       <ul class="navbar__links" id="navLinks">
-        <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-        <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
-        <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
-        <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
-        <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+        <li><a href="/index.html" data-i18n="nav_home">الرئيسية</a></li>
+        <li><a href="/categories.html" data-i18n="nav_categories">الأقسام</a></li>
+        <li><a href="/offers.html" data-i18n="nav_offers">العروض</a></li>
+        <li><a href="/about.html" data-i18n="nav_about">من نحن</a></li>
+        <li><a href="/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
       </ul>
       <div class="navbar__actions">
         <button class="icon-btn" aria-label="Search" id="searchBtn">🔍</button>
-        <a href="cart.html" class="icon-btn cart-btn" aria-label="Cart" id="cartBtn">🛒<span class="cart-badge" id="cartBadge">0</span></a>
+        <a href="/cart.html" class="icon-btn cart-btn" aria-label="Cart" id="cartBtn">🛒<span class="cart-badge" id="cartBadge">0</span></a>
         <button class="dark-toggle" id="darkToggle" aria-label="Night Mode">🌙</button>
         <button class="lang-toggle" id="langToggle" data-i18n="lang_toggle">EN</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -31,11 +31,11 @@ function getNavbarHTML() {
     <div class="mobile-drawer__panel">
       <button class="mobile-drawer__close" id="drawerClose">✕</button>
       <ul class="mobile-drawer__links">
-        <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-        <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
-        <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
-        <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
-        <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+        <li><a href="/index.html" data-i18n="nav_home">الرئيسية</a></li>
+        <li><a href="/categories.html" data-i18n="nav_categories">الأقسام</a></li>
+        <li><a href="/offers.html" data-i18n="nav_offers">العروض</a></li>
+        <li><a href="/about.html" data-i18n="nav_about">من نحن</a></li>
+        <li><a href="/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
       </ul>
     </div>
   </div>`;
@@ -52,10 +52,10 @@ function getFooterHTML() {
       <div class="footer__col">
         <h4 data-i18n="footer_links">روابط سريعة</h4>
         <ul>
-          <li><a href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-          <li><a href="categories.html" data-i18n="nav_categories">الأقسام</a></li>
-          <li><a href="offers.html" data-i18n="nav_offers">العروض</a></li>
-          <li><a href="about.html" data-i18n="nav_about">من نحن</a></li>
+          <li><a href="/index.html" data-i18n="nav_home">الرئيسية</a></li>
+          <li><a href="/categories.html" data-i18n="nav_categories">الأقسام</a></li>
+          <li><a href="/offers.html" data-i18n="nav_offers">العروض</a></li>
+          <li><a href="/about.html" data-i18n="nav_about">من نحن</a></li>
         </ul>
       </div>
       <div class="footer__col">

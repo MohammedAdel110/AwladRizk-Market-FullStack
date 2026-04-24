@@ -3,6 +3,7 @@ namespace AwladRizk.Application.DTOs;
 public class ProductDto
 {
     public int Id { get; set; }
+    public int CategoryId { get; set; }
     public string NameAr { get; set; } = string.Empty;
     public string NameEn { get; set; } = string.Empty;
     public decimal Price { get; set; }
@@ -93,6 +94,8 @@ public class OfferDto
     public int DiscountPercent { get; set; }
     public string BadgeText { get; set; } = string.Empty;
     public string Icon { get; set; } = string.Empty;
+    public DateTime ValidUntil { get; set; }
+    public bool IsActive { get; set; }
 }
 
 public class AuthTokenDto

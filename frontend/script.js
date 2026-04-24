@@ -199,6 +199,135 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('fm_lang') || 'ar';
 let cartCount = parseInt(localStorage.getItem('fm_cart') || '0');
+let tickerMessages = [];
+const CATEGORY_SLUG_MAP = {
+  chips: ["chips", "chips & snacks", "شيبسي ومقرمشات"],
+  juice: ["juice", "juices & drinks", "عصائر ومشروبات"],
+  coffee: ["coffee", "coffee & tea", "قهوة وشاي"],
+  dairy: ["dairy", "dairy & cheese", "ألبان وأجبان"],
+  biscuits: ["biscuits", "biscuits & sweets", "بسكويت وحلويات"],
+  canned: ["canned", "canned food", "معلبات"],
+  clean: ["clean", "cleaning", "منظفات"],
+  pasta: ["pasta", "pasta & rice", "معكرونة وأرز"]
+};
+
+function inferCategorySlug(product) {
+  const raw = (
+    product.categorySlug ||
+    product.categoryNameEn ||
+    product.categoryNameAr ||
+    product.category?.nameEn ||
+    product.category?.nameAr ||
+    ""
+  ).toString().toLowerCase().trim();
+  for (const [slug, names] of Object.entries(CATEGORY_SLUG_MAP)) {
+    if (names.some(n => raw.includes(n))) return slug;
+  }
+  return "chips";
+}
+
+function normalizeImageUrl(url) {
+  if (!url) return "images/chipsy-cheese.png";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // Legacy seeded data uses /images/* which exists in frontend assets.
+  if (url.startsWith("/images/")) return url.slice(1);
+  // Uploaded admin files are served by API static files under /uploads/*.
+  if (url.startsWith("/uploads/") && window.ApiClient) return window.ApiClient.getBaseUrl() + url;
+  if (url.startsWith("/") && window.ApiClient) return window.ApiClient.getBaseUrl() + url;
+  return url;
+}
+
+function renderStoreProductCard(product, index) {
+  const name = currentLang === "ar" ? (product.nameAr || product.nameEn || "") : (product.nameEn || product.nameAr || "");
+  const categoryAr = product.categoryNameAr || product.category?.nameAr || TRANSLATIONS.ar.cat_chips;
+  const categoryEn = product.categoryNameEn || product.category?.nameEn || TRANSLATIONS.en.cat_chips;
+  const category = currentLang === "ar" ? categoryAr : categoryEn;
+  const categorySlug = inferCategorySlug(product);
+  const stockQty = Number(product.stockQty ?? 0);
+  const inStock = product.inStock !== false && stockQty > 0;
+  const lowStock = inStock && stockQty <= 5;
+  const lowStockText = currentLang === "ar" ? `كمية محدودة: ${stockQty}` : `Low stock: ${stockQty}`;
+  const oldPriceHtml = product.oldPrice ? `<span class="product-card__old">${currentLang === "ar" ? Number(product.oldPrice).toLocaleString("ar-EG") + " جنيه" : "EGP " + Number(product.oldPrice).toLocaleString("en")}</span>` : "";
+  const priceText = currentLang === "ar" ? Number(product.price).toLocaleString("ar-EG") + " جنيه" : "EGP " + Number(product.price).toLocaleString("en");
+  return `<div class="product-card reveal-up hover-lift" data-category="${escapeHtmlAttr(categorySlug)}" style="--i:${index}">
+    <div class="product-card__img-wrap">
+      ${product.isOnSale ? `<div class="product-card__ribbon">${currentLang === "ar" ? "خصم" : "Sale"}</div>` : ""}
+      ${lowStock ? `<div class="product-card__low-stock">${escapeHtmlText(lowStockText)}</div>` : ""}
+      <img src="${escapeHtmlAttr(normalizeImageUrl(product.imageUrl))}" alt="${escapeHtmlAttr(name)}" loading="lazy">
+    </div>
+    <div class="product-card__body">
+      <span class="product-card__tag">${escapeHtmlText(category)}</span>
+      <h3 class="product-card__name">${escapeHtmlText(name)}</h3>
+      <div class="product-card__price">${oldPriceHtml}<span>${escapeHtmlText(priceText)}</span></div>
+      <button class="btn btn--cart add-cart-btn" data-product-id="${escapeHtmlAttr(product.id)}" data-stock-qty="${escapeHtmlAttr(stockQty)}" ${inStock ? "" : "disabled"}>${inStock ? (currentLang === "ar" ? "أضف للسلة" : "Add to Cart") : (currentLang === "ar" ? "نفذت الكمية" : "Out of stock")}</button>
+    </div>
+  </div>`;
+}
+
+function escapeHtmlText(v) {
+  return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function escapeHtmlAttr(v) {
+  return escapeHtmlText(v).replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
+async function initStorefrontProducts() {
+  if (!window.ApiClient) return;
+  const featuredGrid = document.getElementById("featuredProductsGrid");
+  const categoriesGrid = document.getElementById("productsGrid");
+  if (!featuredGrid && !categoriesGrid) return;
+
+  try {
+    if (featuredGrid) {
+      const featured = await window.ApiClient.request("/api/products/featured?count=6", { method: "GET" });
+      if (Array.isArray(featured) && featured.length) {
+        featuredGrid.innerHTML = featured.map((p, i) => renderStoreProductCard(p, i)).join("");
+      }
+    }
+    if (categoriesGrid) {
+      const payload = await window.ApiClient.request("/api/products?page=1&pageSize=200", { method: "GET" });
+      const items = payload && Array.isArray(payload.items) ? payload.items : [];
+      if (items.length) {
+        categoriesGrid.innerHTML = items.map((p, i) => renderStoreProductCard(p, i)).join("");
+      }
+      initCategoriesFilters();
+    }
+    initCart();
+    initObservers();
+  } catch (_) {
+    // fallback to static HTML if API unavailable
+    initCategoriesFilters();
+  }
+}
+
+function initCategoriesFilters() {
+  const filterBar = document.getElementById("filterBar");
+  const searchInput = document.getElementById("searchInput");
+  if (!filterBar) return;
+
+  let activeCategory = "all";
+  function applyFilter() {
+    const q = (searchInput && searchInput.value ? searchInput.value : "").toLowerCase().trim();
+    document.querySelectorAll(".product-card[data-category]").forEach(card => {
+      const byCat = activeCategory === "all" || card.dataset.category === activeCategory;
+      const name = (card.querySelector(".product-card__name")?.textContent || "").toLowerCase();
+      const bySearch = !q || name.includes(q);
+      card.style.display = byCat && bySearch ? "" : "none";
+    });
+  }
+
+  filterBar.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBar.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+      btn.classList.add("active");
+      activeCategory = btn.dataset.cat || "all";
+      applyFilter();
+    });
+  });
+  if (searchInput) searchInput.addEventListener("input", applyFilter);
+  applyFilter();
+}
 
 function setLanguage(lang) {
   currentLang = lang;
@@ -215,6 +344,10 @@ function setLanguage(lang) {
       else el.textContent = t[key];
     }
   });
+  renderTicker();
+  // Re-render API-driven content in selected language.
+  initStorefrontProducts();
+  initOffersFromApi();
 }
 
 function updateCartBadge() {
@@ -246,14 +379,15 @@ function initCart() {
   updateCartBadge();
   document.querySelectorAll('.add-cart-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
       const orig = btn.textContent;
       btn.classList.add('added'); btn.textContent = '\u2713';
       setTimeout(() => { btn.classList.remove('added'); btn.textContent = orig; }, 1500);
 
       // Detect product ID from the card
       const card = btn.closest('.product-card');
-      let productId = 'p1';
-      if (card) {
+      let productId = btn.getAttribute("data-product-id") || 'p1';
+      if (!btn.getAttribute("data-product-id") && card) {
         const nameEl = card.querySelector('[data-i18n^="p"][data-i18n$="_name"]');
         if (nameEl) productId = nameEl.getAttribute('data-i18n').replace('_name', '');
       }
@@ -261,6 +395,13 @@ function initCart() {
       // Add to cart items in localStorage
       const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
       const existing = items.find(i => i.id === productId);
+      const maxQty = Number(btn.getAttribute("data-stock-qty") || 0);
+      const currentQty = existing ? Number(existing.qty || 0) : 0;
+      if (maxQty > 0 && currentQty >= maxQty) {
+        const msg = currentLang === "ar" ? "الكمية المتاحة غير كافية في المخزون." : "No more stock available for this product.";
+        alert(msg);
+        return;
+      }
       if (existing) { existing.qty++; } else { items.push({ id: productId, qty: 1 }); }
       localStorage.setItem('fm_cart_items', JSON.stringify(items));
 
@@ -342,8 +483,66 @@ function initDarkMode() {
   }
 }
 
+function renderTicker() {
+  const track = document.getElementById('tickerTrack');
+  if (!track || !tickerMessages.length) return;
+
+  const lines = [];
+  tickerMessages.forEach(msg => {
+    const text = currentLang === 'ar' ? msg.textAr : msg.textEn;
+    if (!text) return;
+    lines.push(`<span>${text}</span>`);
+    lines.push('<span class="ticker__sep">✦</span>');
+  });
+
+  track.innerHTML = lines.join('');
+}
+
+async function initTickerFromApi() {
+  if (!window.ApiClient || !document.getElementById('tickerTrack')) return;
+  try {
+    const items = await window.ApiClient.request('/api/ticker', { method: 'GET' });
+    if (Array.isArray(items) && items.length) {
+      tickerMessages = items;
+      renderTicker();
+    }
+  } catch (_) {
+    // Keep static HTML ticker as fallback if API is unavailable.
+  }
+}
+
+async function initOffersFromApi() {
+  if (!window.ApiClient) return;
+  const grid = document.querySelector(".offers-grid");
+  if (!grid) return;
+  try {
+    const offers = await window.ApiClient.request("/api/offers", { method: "GET" });
+    if (!Array.isArray(offers) || !offers.length) return;
+    grid.innerHTML = offers
+      .filter(o => o.isActive !== false)
+      .map((o, i) => {
+        const title = currentLang === "ar" ? (o.titleAr || o.titleEn || "") : (o.titleEn || o.titleAr || "");
+        const desc = currentLang === "ar" ? "العرض ساري حتى نهاية الأسبوع" : "Offer valid until end of week";
+        const badge = o.badgeText || `-${o.discountPercent || 0}%`;
+        const icon = o.icon || "🔥";
+        return `<div class="offer-card reveal-up" style="--i:${i}">
+          <span class="offer-card__badge">${escapeHtmlText(badge)}</span>
+          <div class="offer-card__icon">${escapeHtmlText(icon)}</div>
+          <h3>${escapeHtmlText(title)}</h3>
+          <p>${escapeHtmlText(desc)}</p>
+        </div>`;
+      }).join("");
+    initObservers();
+  } catch (_) {
+    // keep static offers if API unavailable
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setLanguage(currentLang);
   initObservers(); initNavbar(); initCart(); initTestimonials();
   initMobileMenu(); initNewsletter(); initLangToggle(); initDarkMode(); updateCartBadge();
+  initTickerFromApi();
+  initStorefrontProducts();
+  initOffersFromApi();
 });
