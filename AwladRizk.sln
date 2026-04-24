@@ -1,19 +1,19 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Back-End", "Back-End", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Domain", "src\AwladRizk.Domain\AwladRizk.Domain.csproj", "{B3787145-6FE7-4766-8911-DA5BB2154694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Domain", "Back-End\AwladRizk.Domain\AwladRizk.Domain.csproj", "{B3787145-6FE7-4766-8911-DA5BB2154694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Application", "src\AwladRizk.Application\AwladRizk.Application.csproj", "{F64C8197-A8DF-40F5-851E-1CA806C48C19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Application", "Back-End\AwladRizk.Application\AwladRizk.Application.csproj", "{F64C8197-A8DF-40F5-851E-1CA806C48C19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Persistence", "src\AwladRizk.Persistence\AwladRizk.Persistence.csproj", "{7FC15C43-DC81-4BD2-B772-5402BF02E05A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Persistence", "Back-End\AwladRizk.Persistence\AwladRizk.Persistence.csproj", "{7FC15C43-DC81-4BD2-B772-5402BF02E05A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Infrastructure", "src\AwladRizk.Infrastructure\AwladRizk.Infrastructure.csproj", "{5DF8F1F4-891D-48D3-93D8-0DBC68533684}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.Infrastructure", "Back-End\AwladRizk.Infrastructure\AwladRizk.Infrastructure.csproj", "{5DF8F1F4-891D-48D3-93D8-0DBC68533684}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.API", "src\AwladRizk.API\AwladRizk.API.csproj", "{A0ECB0F9-82BB-450A-BA1E-04BA3F28BE83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwladRizk.API", "Back-End\AwladRizk.API\AwladRizk.API.csproj", "{A0ECB0F9-82BB-450A-BA1E-04BA3F28BE83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
