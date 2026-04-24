@@ -41,5 +41,8 @@ public class MappingProfile : Profile
 
         // Offer → OfferDto
         CreateMap<Offer, OfferDto>();
+
+        // HomeTickerMessage → HomeTickerMessageDto
+        CreateMap<HomeTickerMessage, HomeTickerMessageDto>();
     }
 }

@@ -10,7 +10,7 @@ namespace AwladRizk.Infrastructure.Auth;
 
 /// <summary>
 /// JWT token generator for admin authentication.
-/// Reads settings from appsettings.json under "Jwt" section.
+/// Reads settings from appsettings.json under "JwtTokenSettings" (with "Jwt" fallback).
 /// </summary>
 public class JwtTokenService : IJwtTokenService
 {
@@ -23,8 +23,18 @@ public class JwtTokenService : IJwtTokenService
 
     public string GenerateToken(AdminUser user)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured.");
+        var jwtSettings = _configuration.GetSection("JwtTokenSettings");
+        var key = jwtSettings["SecretKey"];
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            jwtSettings = _configuration.GetSection("Jwt");
+            key = jwtSettings["Key"];
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new InvalidOperationException("JWT Key not configured.");
+        }
         var issuer = jwtSettings["Issuer"] ?? "AwladRizk.API";
         var audience = jwtSettings["Audience"] ?? "AwladRizk.Client";
         var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"] ?? "480"); // 8 hours default

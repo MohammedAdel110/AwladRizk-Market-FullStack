@@ -21,6 +21,7 @@ public class AwladRizkDbContext : DbContext
     public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>();
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<HomeTickerMessage> HomeTickerMessages => Set<HomeTickerMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

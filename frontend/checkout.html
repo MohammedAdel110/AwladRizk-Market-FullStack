@@ -314,8 +314,9 @@
 
     try {
       if (window.ApiClient) {
-        await window.ApiClient.placeOrder(orderPayload);
+        const orderResult = await window.ApiClient.placeOrder(orderPayload);
         await window.ApiClient.processPayment({
+          orderNumber: orderResult?.orderNumber,
           paymentMethod: selectedMethod,
           amount: Number(localStorage.getItem('fm_cart_subtotal') || 0) + Number(localStorage.getItem('fm_cart_delivery') || 0)
         });
