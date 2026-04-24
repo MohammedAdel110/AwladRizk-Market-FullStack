@@ -297,11 +297,29 @@ function initNewsletter() {
   const form = document.getElementById('newsForm');
   if (!form) return;
   const btn = form.querySelector('.btn--ripple');
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault(); btn.classList.add('rippling');
     setTimeout(() => btn.classList.remove('rippling'), 600);
     const input = document.getElementById('emailInput');
-    if (input && input.value) { input.value = ''; btn.textContent = '✓'; setTimeout(() => { btn.textContent = TRANSLATIONS[currentLang].news_btn; }, 2000); }
+    if (!input || !input.value) return;
+
+    const email = input.value.trim();
+    if (!email) return;
+
+    try {
+      if (window.ApiClient) {
+        await window.ApiClient.subscribeNewsletter(email);
+      }
+      input.value = '';
+      btn.textContent = '✓';
+      setTimeout(() => { btn.textContent = TRANSLATIONS[currentLang].news_btn; }, 2000);
+    } catch (err) {
+      const msg = currentLang === 'ar'
+        ? 'تعذر الاشتراك الآن. حاول مرة أخرى لاحقاً.'
+        : 'Unable to subscribe right now. Please try again later.';
+      alert(msg);
+      btn.textContent = TRANSLATIONS[currentLang].news_btn;
+    }
   });
 }
 

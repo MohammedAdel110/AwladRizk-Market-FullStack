@@ -235,6 +235,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="components.js"></script>
+<script src="api.js"></script>
 <script src="script.js"></script>
 <script>
   const PRODUCTS = {
@@ -296,16 +297,41 @@
     }
   });
 
-  function processPayment() {
+  async function processPayment() {
     const btn = document.getElementById('payBtn');
     btn.disabled = true;
     btn.innerHTML = '<span style="display:inline-block;animation:spinSlow 1s linear infinite">⏳</span>';
-    setTimeout(() => {
-      // Clear cart
+    const selectedMethod = document.querySelector('.pay-tab.active')?.dataset.method || 'visa';
+    const items = JSON.parse(localStorage.getItem('fm_cart_items') || '[]');
+
+    const orderPayload = {
+      address: document.getElementById('delAddress')?.value || '',
+      phone: document.getElementById('delPhone')?.value || '',
+      notes: document.getElementById('delNotes')?.value || '',
+      paymentMethod: selectedMethod,
+      items: items
+    };
+
+    try {
+      if (window.ApiClient) {
+        await window.ApiClient.placeOrder(orderPayload);
+        await window.ApiClient.processPayment({
+          paymentMethod: selectedMethod,
+          amount: Number(localStorage.getItem('fm_cart_subtotal') || 0) + Number(localStorage.getItem('fm_cart_delivery') || 0)
+        });
+      }
       localStorage.removeItem('fm_cart_items');
       localStorage.setItem('fm_cart', '0');
       document.getElementById('successOverlay').classList.add('show');
-    }, 2000);
+    } catch (err) {
+      const msg = (localStorage.getItem('fm_lang') || 'ar') === 'ar'
+        ? 'فشل تنفيذ الدفع حالياً. حاول مرة أخرى.'
+        : 'Payment failed right now. Please try again.';
+      alert(msg);
+      btn.disabled = false;
+      btn.innerHTML = '<span data-i18n="chk_pay_now">ادفع الآن</span> — <span id="payTotal">٠ جنيه</span>';
+      renderOrderSummary();
+    }
   }
 </script>
 </body>

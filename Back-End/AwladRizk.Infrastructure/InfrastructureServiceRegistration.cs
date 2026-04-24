@@ -47,8 +47,17 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         // ─── JWT Authentication ────────────────────────────────────────
-        var jwtSettings = configuration.GetSection("Jwt");
-        var key = jwtSettings["Key"];
+        // Supports both:
+        // - JwtTokenSettings:SecretKey/Issuer/Audience
+        // - Jwt:Key/Issuer/Audience (legacy)
+        var jwtSettings = configuration.GetSection("JwtTokenSettings");
+        var key = jwtSettings["SecretKey"];
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            jwtSettings = configuration.GetSection("Jwt");
+            key = jwtSettings["Key"];
+        }
 
         if (!string.IsNullOrEmpty(key))
         {
