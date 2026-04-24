@@ -4,12 +4,17 @@ using AwladRizk.Application.Features.Orders.Commands;
 using AwladRizk.Application.Features.Orders.Queries;
 using AwladRizk.Domain.Enums;
 using AwladRizk.Domain.Interfaces;
+using AwladRizk.API.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace AwladRizk.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class OrdersController(ISender sender, ICartService cartService) : ControllerBase
+public class OrdersController(
+    ISender sender,
+    ICartService cartService,
+    IHubContext<OrderHub, IOrderClient> orderHub) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken ct = default)
@@ -45,6 +50,14 @@ public class OrdersController(ISender sender, ICartService cartService) : Contro
             request.WalletPhone,
             request.WalletProvider), ct);
 
+        // Broadcast ONLY after the order is successfully saved (sender.Send returns after commit).
+        // Only connected Admin clients will receive this (Hub is authorized + Admin group).
+        var customerName = string.IsNullOrWhiteSpace(request.CustomerName) ? "Customer" : request.CustomerName.Trim();
+        await orderHub.Clients.Group(OrderHub.AdminsGroup).ReceiveNewOrder(new NewOrderNotification(
+            result.OrderId,
+            customerName,
+            result.GrandTotal));
+
         return Ok(result);
     }
 
@@ -61,6 +74,7 @@ public class OrdersController(ISender sender, ICartService cartService) : Contro
 public sealed class PlaceOrderRequest
 {
     public string? SessionId { get; set; }
+    public string? CustomerName { get; set; }
     public string Governorate { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public string? Area { get; set; }

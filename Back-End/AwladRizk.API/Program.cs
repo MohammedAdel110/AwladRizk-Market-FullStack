@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using AwladRizk.API.Middleware;
+using AwladRizk.API.Hubs;
 using AwladRizk.Application;
 using AwladRizk.Domain.Entities;
 using AwladRizk.Infrastructure;
@@ -13,6 +14,7 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -116,6 +118,7 @@ app.UseAuthorization();
 app.UseSession();
 app.UseMiddleware<SessionCookieMiddleware>();
 app.MapControllers();
+app.MapHub<OrderHub>("/orderHub");
 
 using (var scope = app.Services.CreateScope())
 {

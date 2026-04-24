@@ -34,6 +34,84 @@ function showToast(message, kind) {
   showToast._t = window.setTimeout(() => el.classList.remove("show"), 2600);
 }
 
+function ensureRealtimeToastStack() {
+  let stack = document.getElementById("rtToastStack");
+  if (stack) return stack;
+  stack = document.createElement("div");
+  stack.id = "rtToastStack";
+  stack.className = "rt-toast-stack";
+  document.body.appendChild(stack);
+  return stack;
+}
+
+function showRealtimeOrderToast(payload) {
+  const stack = ensureRealtimeToastStack();
+  const el = document.createElement("div");
+  el.className = "rt-toast";
+  const orderId = payload && payload.orderId != null ? payload.orderId : "—";
+  const name = payload && payload.customerName ? payload.customerName : "Customer";
+  const total = payload && payload.totalAmount != null ? Number(payload.totalAmount) : 0;
+  el.innerHTML = `
+    <div class="rt-toast__icon">🧾</div>
+    <div class="rt-toast__body">
+      <div class="rt-toast__title">New Order #${escapeHtml(orderId)}</div>
+      <div class="rt-toast__meta">
+        <span>${escapeHtml(name)}</span>
+        <span class="rt-dot">•</span>
+        <span>EGP ${escapeHtml(money(total))}</span>
+      </div>
+    </div>
+    <button class="rt-toast__close" type="button" aria-label="Close">×</button>
+  `;
+  stack.appendChild(el);
+
+  const close = () => {
+    el.classList.add("out");
+    window.setTimeout(() => el.remove(), 220);
+  };
+  el.querySelector(".rt-toast__close").addEventListener("click", close);
+  window.setTimeout(close, 6500);
+}
+
+function playOrderAlertSound() {
+  try {
+    const audio = playOrderAlertSound._a || (playOrderAlertSound._a = new Audio("assets/audio/alert.mp3"));
+    audio.currentTime = 0;
+    const p = audio.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  } catch {
+    // ignore
+  }
+}
+
+async function initOrderRealtimeNotifications() {
+  if (!window.signalR || !window.ApiClient) return;
+  const token = window.ApiClient.getAdminToken();
+  if (!token) return;
+
+  const base = window.ApiClient.getBaseUrl ? window.ApiClient.getBaseUrl() : "";
+  const hubUrl = (base ? base.replace(/\/+$/, "") : "") + "/orderHub";
+
+  const connection = new window.signalR.HubConnectionBuilder()
+    .withUrl(hubUrl, { accessTokenFactory: () => token })
+    .withAutomaticReconnect()
+    .build();
+
+  connection.on("ReceiveNewOrder", (payload) => {
+    playOrderAlertSound();
+    showRealtimeOrderToast(payload || {});
+    // Optional: keep admin lists fresh
+    // refreshAllData().catch(() => {});
+  });
+
+  try {
+    await connection.start();
+  } catch (err) {
+    // keep the dashboard usable even if realtime fails
+    showToast("Realtime connection failed.", "error");
+  }
+}
+
 const EditState = {
   type: null, // "product" | "offer" | "ticker"
   id: null,
@@ -704,6 +782,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!ensureAdminAuth()) return;
 
   setActiveView("products");
+  initOrderRealtimeNotifications();
 
   const nav = $("adminNav");
   if (nav) {

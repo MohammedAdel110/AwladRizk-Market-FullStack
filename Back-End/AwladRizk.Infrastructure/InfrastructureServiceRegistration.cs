@@ -79,6 +79,21 @@ public static class InfrastructureServiceRegistration
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                     ClockSkew = TimeSpan.FromMinutes(1)
                 };
+
+                // Allow JWTs to be passed via query string for SignalR WebSocket connections.
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/orderHub"))
+                        {
+                            context.Token = accessToken!;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
         }
 

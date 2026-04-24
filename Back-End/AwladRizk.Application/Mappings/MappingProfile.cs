@@ -20,11 +20,13 @@ public class MappingProfile : Profile
 
         // Order → OrderDto
         CreateMap<Order, OrderDto>()
+            .ForMember(d => d.OrderId, o => o.MapFrom(s => s.Id))
             .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
             .ForMember(d => d.ItemCount, o => o.MapFrom(s => s.Items.Count));
 
         // Order → OrderDetailDto
         CreateMap<Order, OrderDetailDto>()
+            .ForMember(d => d.OrderId, o => o.MapFrom(s => s.Id))
             .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
             .ForMember(d => d.ItemCount, o => o.MapFrom(s => s.Items.Count))
             .ForMember(d => d.DeliveryAddress, o => o.MapFrom(s =>
